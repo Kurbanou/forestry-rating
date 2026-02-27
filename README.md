@@ -70,7 +70,7 @@ npm run dev
 ```bash
 # Создать резервную копию
 
-docker exec -t forestry-db pg*dump -U admin forestry_rating > backup*$(date +%Y%m%d).sql
+docker exec -t forestry-db pg_dump -U admin forestry_rating > backup_$(date +%Y%m%d).sql
 
 # Восстановить из резервной копии
 
