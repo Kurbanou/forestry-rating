@@ -35,7 +35,7 @@ async function fetchWithAuth(endpoint, options = {}) {
 }
 
 export const api = {
-  // Аутентификация
+  // ============ Аутентификация ============
   login: (email, password) =>
     fetchWithAuth("/login", {
       method: "POST",
@@ -50,7 +50,7 @@ export const api = {
 
   getMe: () => fetchWithAuth("/me"),
 
-  // Разделы
+  // ============ Разделы ============
   getSections: () => fetchWithAuth("/sections"),
 
   createSection: (section) =>
@@ -70,7 +70,7 @@ export const api = {
       method: "DELETE",
     }),
 
-  // Показатели
+  // ============ Показатели ============
   getIndicators: () => fetchWithAuth("/indicators"),
 
   createIndicator: (indicator) =>
@@ -90,59 +90,31 @@ export const api = {
       method: "DELETE",
     }),
 
-  // В объект api добавьте:
+  // ============ Ответственные за показатели ============
+  // Получить всех ответственных (для админ-панели)
+  getAllResponsible: () => fetchWithAuth("/indicator-responsible"),
 
-  // Ответственные за показатели
+  // Получить ответственных для конкретного показателя
   getIndicatorResponsible: (indicatorId) =>
     fetchWithAuth(`/indicators/${indicatorId}/responsible`),
 
+  // Добавить ответственного
   addResponsible: (indicatorId, userId) =>
     fetchWithAuth(`/indicators/${indicatorId}/responsible`, {
       method: "POST",
       body: JSON.stringify({ user_id: userId }),
     }),
 
+  // Удалить ответственного
   removeResponsible: (indicatorId, userId) =>
     fetchWithAuth(`/indicators/${indicatorId}/responsible/${userId}`, {
       method: "DELETE",
     }),
 
-  // Инженеры
+  // ============ Инженеры ============
   getEngineers: () => fetchWithAuth("/users/engineers"),
 
-  // Данные
-  getForestries: () => fetchWithAuth("/forestries"),
-  getRawData: (period) =>
-    fetchWithAuth(`/raw-data${period ? `?period=${period}` : ""}`),
-  saveRawData: (data) =>
-    fetchWithAuth("/raw-data", {
-      method: "POST",
-      body: JSON.stringify(data),
-    }),
-
-  // Пользователи
-  getUsers: () => fetchWithAuth("/users"),
-
-  getUser: (id) => fetchWithAuth(`/users/${id}`),
-
-  createUser: (userData) =>
-    fetchWithAuth("/users", {
-      method: "POST",
-      body: JSON.stringify(userData),
-    }),
-
-  updateUser: (id, userData) =>
-    fetchWithAuth(`/users/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(userData),
-    }),
-
-  deleteUser: (id) =>
-    fetchWithAuth(`/users/${id}`, {
-      method: "DELETE",
-    }),
-
-  // Лесничества
+  // ============ Лесничества ============
   getForestries: () => fetchWithAuth("/forestries"),
 
   getForestry: (id) => fetchWithAuth(`/forestries/${id}`),
@@ -164,9 +136,35 @@ export const api = {
       method: "DELETE",
     }),
 
-  // В объект api добавьте:
-  getIndicatorResponsible: () => fetchWithAuth("/indicator-responsible"),
+  // ============ Данные ============
+  getRawData: (period) =>
+    fetchWithAuth(`/raw-data${period ? `?period=${period}` : ""}`),
 
-  // Инженеры
-  getEngineers: () => fetchWithAuth("/users/engineers"),
+  saveRawData: (data) =>
+    fetchWithAuth("/raw-data", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  // ============ Пользователи ============
+  getUsers: () => fetchWithAuth("/users"),
+
+  getUser: (id) => fetchWithAuth(`/users/${id}`),
+
+  createUser: (userData) =>
+    fetchWithAuth("/users", {
+      method: "POST",
+      body: JSON.stringify(userData),
+    }),
+
+  updateUser: (id, userData) =>
+    fetchWithAuth(`/users/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(userData),
+    }),
+
+  deleteUser: (id) =>
+    fetchWithAuth(`/users/${id}`, {
+      method: "DELETE",
+    }),
 };

@@ -11,7 +11,7 @@ export const useDataStore = defineStore("data", () => {
   const sections = ref([]);
   const indicators = ref([]);
   const rawData = ref([]);
-  const responsible = ref([]); // Добавлено!
+  const responsible = ref([]);
   const loading = ref(false);
   const currentPeriod = ref(new Date().toISOString().slice(0, 7));
 
@@ -22,6 +22,7 @@ export const useDataStore = defineStore("data", () => {
   async function loadAllData() {
     loading.value = true;
     try {
+      // Добавляем getAllResponsible в Promise.all
       const [
         forestriesData,
         sectionsData,
@@ -33,17 +34,16 @@ export const useDataStore = defineStore("data", () => {
         api.getSections(),
         api.getIndicators(),
         api.getRawData(currentPeriod.value),
-        api.getIndicatorResponsible?.() || Promise.resolve([]), // Добавлено, с проверкой
+        api.getAllResponsible(), // Загружаем всех ответственных
       ]);
 
       forestries.value = forestriesData || [];
       sections.value = sectionsData || [];
       indicators.value = indicatorsData || [];
       rawData.value = rawDataData || [];
-      responsible.value = responsibleData || [];
+      responsible.value = responsibleData || []; // Сохраняем ответственных
 
-      // Очищаем кэш при загрузке новых данных
-      scoreCache.value.clear();
+      console.log("Загружены ответственные:", responsible.value.length); // Для отладки
     } catch (error) {
       console.error("Ошибка загрузки данных:", error);
     } finally {
@@ -93,7 +93,6 @@ export const useDataStore = defineStore("data", () => {
   function getScore(forestryId, indicatorId, period = currentPeriod.value) {
     const cacheKey = `${forestryId}-${indicatorId}-${period}`;
 
-    // Если есть в кэше, возвращаем
     if (scoreCache.value.has(cacheKey)) {
       return scoreCache.value.get(cacheKey);
     }
@@ -106,13 +105,10 @@ export const useDataStore = defineStore("data", () => {
     let score = 0;
 
     if (indicator.type === "penalty") {
-      // Штрафные показатели: значение уже в баллах (отрицательное)
-      score = -Math.abs(value); // Всегда отрицательное
+      score = -Math.abs(value);
     } else if (indicator.type === "bonus") {
-      // Бонусные показатели: значение уже в баллах (положительное)
-      score = Math.abs(value); // Всегда положительное
+      score = Math.abs(value);
     } else {
-      // Обычные показатели: расчет по формуле
       const maxValue = Math.max(
         0,
         ...rawData.value
@@ -174,10 +170,8 @@ export const useDataStore = defineStore("data", () => {
         period,
       });
 
-      // Обновляем локальные данные без перезагрузки
       const fullPeriod = `${period}-01`;
 
-      // Ищем существующую запись
       const existingIndex = rawData.value.findIndex(
         (r) =>
           r.forestry_id === forestryId &&
@@ -186,13 +180,11 @@ export const useDataStore = defineStore("data", () => {
       );
 
       if (existingIndex >= 0) {
-        // Обновляем существующую
         rawData.value[existingIndex].value = value;
         rawData.value[existingIndex].updated_at = new Date().toISOString();
       } else {
-        // Добавляем новую
         rawData.value.push({
-          id: Date.now(), // временный ID, при следующей загрузке заменится
+          id: Date.now(),
           forestry_id: forestryId,
           indicator_id: indicatorId,
           value: value,
@@ -201,7 +193,6 @@ export const useDataStore = defineStore("data", () => {
         });
       }
 
-      // Очищаем кэш для этого показателя
       for (let key of scoreCache.value.keys()) {
         if (key.includes(`-${indicatorId}-`)) {
           scoreCache.value.delete(key);
@@ -214,7 +205,6 @@ export const useDataStore = defineStore("data", () => {
   }
 
   return {
-    // State
     forestries,
     sections,
     indicators,
@@ -222,8 +212,6 @@ export const useDataStore = defineStore("data", () => {
     responsible,
     loading,
     currentPeriod,
-
-    // Getters
     getIndicatorsBySection,
     canEditIndicator,
     isUserResponsibleForIndicator,
@@ -231,8 +219,6 @@ export const useDataStore = defineStore("data", () => {
     getScore,
     getTotalScore,
     getScoreClass,
-
-    // Actions
     loadAllData,
     saveValue,
   };

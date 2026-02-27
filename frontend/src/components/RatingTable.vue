@@ -269,7 +269,6 @@ const canEditIndicator = (indicatorId) => {
 
   // Инженер может редактировать только назначенные показатели
   if (authStore.user?.role === "engineer") {
-    // Проверяем, есть ли текущий пользователь в списке ответственных за этот показатель
     return dataStore.isUserResponsibleForIndicator(
       authStore.user.id,
       indicatorId,

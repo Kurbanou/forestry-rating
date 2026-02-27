@@ -13,13 +13,13 @@
           class="responsible-item"
         >
           <div class="user-info">
-            <span class="user-email">{{ user.user_email }}</span>
+            <span class="user-email">{{ user.user_email || user.email }}</span>
             <span class="user-role" :class="user.role">{{
               getRoleName(user.role)
             }}</span>
           </div>
           <button
-            @click="removeResponsible(user.user_id)"
+            @click="removeResponsible(user)"
             class="btn-remove"
             title="Удалить"
           >
@@ -48,7 +48,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { api } from "../../lib/api";
 
 const props = defineProps({
@@ -63,25 +63,59 @@ const emit = defineEmits(["changed"]);
 const responsible = ref([]);
 const engineers = ref([]);
 const selectedUser = ref("");
+const loading = ref(false);
 
-onMounted(() => {
-  loadData();
-});
+// Очищаем все данные
+const clearAllData = () => {
+  responsible.value = [];
+  engineers.value = [];
+  selectedUser.value = "";
+};
 
+// Загружаем данные
 const loadData = async () => {
+  if (!props.indicatorId) {
+    clearAllData();
+    return;
+  }
+
+  loading.value = true;
   try {
     const [respData, engData] = await Promise.all([
       api.getIndicatorResponsible(props.indicatorId),
       api.getEngineers(),
     ]);
-    console.log("respData:", respData); // ← ПОСМОТРИТЕ ЭТО
-    responsible.value = respData || [];
+
+    // Преобразуем данные в единый формат
+    const formattedResponsible = (respData || []).map((item) => ({
+      id: item.id,
+      user_id: item.user_id,
+      email: item.user_email || item.email,
+      role: item.role,
+      indicator_id: item.indicator_id,
+    }));
+
+    responsible.value = formattedResponsible;
     engineers.value = engData || [];
-    console.log("Ответственные:", responsible.value); // Для отладки
   } catch (error) {
     console.error("Ошибка загрузки данных:", error);
+    clearAllData();
+  } finally {
+    loading.value = false;
   }
 };
+
+// Следим за изменением ID
+watch(
+  () => props.indicatorId,
+  (newId, oldId) => {
+    clearAllData();
+    if (newId) {
+      loadData();
+    }
+  },
+  { immediate: true },
+);
 
 const availableEngineers = computed(() => {
   const responsibleIds = responsible.value.map((r) => r.user_id);
@@ -99,6 +133,10 @@ const getRoleName = (role) => {
 
 const addResponsible = async () => {
   if (!selectedUser.value) return;
+  if (!props.indicatorId) {
+    alert("Сначала сохраните показатель");
+    return;
+  }
 
   try {
     await api.addResponsible(props.indicatorId, selectedUser.value);
@@ -111,11 +149,11 @@ const addResponsible = async () => {
   }
 };
 
-const removeResponsible = async (userId) => {
-  if (!confirm("Убрать ответственного?")) return;
+const removeResponsible = async (user) => {
+  if (!confirm(`Убрать ответственного ${user.email}?`)) return;
 
   try {
-    await api.removeResponsible(props.indicatorId, userId);
+    await api.removeResponsible(props.indicatorId, user.user_id);
     await loadData();
     emit("changed");
   } catch (error) {
@@ -123,6 +161,14 @@ const removeResponsible = async (userId) => {
     alert("Не удалось удалить ответственного");
   }
 };
+
+onMounted(() => {
+  if (props.indicatorId) {
+    loadData();
+  } else {
+    clearAllData();
+  }
+});
 </script>
 
 <style scoped>
@@ -138,20 +184,24 @@ const removeResponsible = async (userId) => {
   margin: 0 0 15px 0;
   color: #333;
   font-size: 16px;
+  font-weight: 600;
 }
 
 .current-responsible {
   margin-bottom: 15px;
   min-height: 60px;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .no-data {
   color: #999;
   font-style: italic;
-  padding: 10px;
+  padding: 15px;
   text-align: center;
   background: #f5f5f5;
   border-radius: 4px;
+  font-size: 14px;
 }
 
 .responsible-list {
@@ -164,21 +214,25 @@ const removeResponsible = async (userId) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 12px;
+  padding: 12px 15px;
   background: white;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #ddd;
   border-radius: 6px;
   transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .responsible-item:hover {
-  background: #f5f5f5;
+  background: #f0f0f0;
+  border-color: #bbb;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .user-info {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex: 1;
 }
 
 .user-email {
@@ -193,6 +247,7 @@ const removeResponsible = async (userId) => {
   border-radius: 4px;
   display: inline-block;
   width: fit-content;
+  font-weight: 500;
 }
 
 .user-role.engineer {
@@ -218,6 +273,7 @@ const removeResponsible = async (userId) => {
   cursor: pointer;
   padding: 0 8px;
   transition: color 0.2s;
+  font-weight: bold;
 }
 
 .btn-remove:hover {
@@ -238,6 +294,7 @@ const removeResponsible = async (userId) => {
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
+  background: white;
 }
 
 .btn-add {
@@ -249,6 +306,7 @@ const removeResponsible = async (userId) => {
   cursor: pointer;
   font-size: 14px;
   transition: background 0.2s;
+  font-weight: 500;
 }
 
 .btn-add:hover:not(:disabled) {
