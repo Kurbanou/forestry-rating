@@ -262,9 +262,22 @@ onUnmounted(() => {
   window.removeEventListener("keydown", handleGlobalKeyDown);
 });
 
-// Проверка прав
+// Проверка прав на редактирование
 const canEditIndicator = (indicatorId) => {
-  return authStore.user?.role === "admin";
+  // Админ может всё
+  if (authStore.user?.role === "admin") return true;
+
+  // Инженер может редактировать только назначенные показатели
+  if (authStore.user?.role === "engineer") {
+    // Проверяем, есть ли текущий пользователь в списке ответственных за этот показатель
+    return dataStore.isUserResponsibleForIndicator(
+      authStore.user.id,
+      indicatorId,
+    );
+  }
+
+  // Наблюдатели и гости не могут редактировать
+  return false;
 };
 
 // Получение значений

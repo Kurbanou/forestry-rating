@@ -164,6 +164,9 @@ export const api = {
       method: "DELETE",
     }),
 
+  // В объект api добавьте:
+  getIndicatorResponsible: () => fetchWithAuth("/indicator-responsible"),
+
   // Инженеры
   getEngineers: () => fetchWithAuth("/users/engineers"),
 };
