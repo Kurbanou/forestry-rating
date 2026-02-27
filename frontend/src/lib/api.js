@@ -1,7 +1,6 @@
 // frontend/src/lib/api.js
 const API_URL = "http://localhost:3000/api";
 
-// Вспомогательная функция для запросов с токеном
 async function fetchWithAuth(endpoint, options = {}) {
   const token = localStorage.getItem("token");
 
@@ -11,18 +10,28 @@ async function fetchWithAuth(endpoint, options = {}) {
     ...options.headers,
   };
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
 
-  const data = await response.json();
+    const data = await response.json();
 
-  if (!response.ok) {
-    throw new Error(data.error || "Ошибка запроса");
+    if (!response.ok) {
+      console.error("Ошибка API:", {
+        status: response.status,
+        endpoint,
+        data,
+      });
+      throw new Error(data.error || `Ошибка ${response.status}`);
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Сетевая ошибка:", error);
+    throw error;
   }
-
-  return data;
 }
 
 export const api = {
@@ -41,17 +50,98 @@ export const api = {
 
   getMe: () => fetchWithAuth("/me"),
 
+  // Разделы
+  getSections: () => fetchWithAuth("/sections"),
+
+  createSection: (section) =>
+    fetchWithAuth("/sections", {
+      method: "POST",
+      body: JSON.stringify(section),
+    }),
+
+  updateSection: (id, section) =>
+    fetchWithAuth(`/sections/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(section),
+    }),
+
+  deleteSection: (id) =>
+    fetchWithAuth(`/sections/${id}`, {
+      method: "DELETE",
+    }),
+
+  // Показатели
+  getIndicators: () => fetchWithAuth("/indicators"),
+
+  createIndicator: (indicator) =>
+    fetchWithAuth("/indicators", {
+      method: "POST",
+      body: JSON.stringify(indicator),
+    }),
+
+  updateIndicator: (id, indicator) =>
+    fetchWithAuth(`/indicators/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(indicator),
+    }),
+
+  deleteIndicator: (id) =>
+    fetchWithAuth(`/indicators/${id}`, {
+      method: "DELETE",
+    }),
+
+  // В объект api добавьте:
+
+  // Ответственные за показатели
+  getIndicatorResponsible: (indicatorId) =>
+    fetchWithAuth(`/indicators/${indicatorId}/responsible`),
+
+  addResponsible: (indicatorId, userId) =>
+    fetchWithAuth(`/indicators/${indicatorId}/responsible`, {
+      method: "POST",
+      body: JSON.stringify({ user_id: userId }),
+    }),
+
+  removeResponsible: (indicatorId, userId) =>
+    fetchWithAuth(`/indicators/${indicatorId}/responsible/${userId}`, {
+      method: "DELETE",
+    }),
+
+  // Инженеры
+  getEngineers: () => fetchWithAuth("/users/engineers"),
+
   // Данные
   getForestries: () => fetchWithAuth("/forestries"),
-  getSections: () => fetchWithAuth("/sections"),
-  getIndicators: () => fetchWithAuth("/indicators"),
   getRawData: (period) =>
     fetchWithAuth(`/raw-data${period ? `?period=${period}` : ""}`),
-
-  // Сохранение данных
   saveRawData: (data) =>
     fetchWithAuth("/raw-data", {
       method: "POST",
       body: JSON.stringify(data),
     }),
+
+  // Пользователи
+  getUsers: () => fetchWithAuth("/users"),
+
+  getUser: (id) => fetchWithAuth(`/users/${id}`),
+
+  createUser: (userData) =>
+    fetchWithAuth("/users", {
+      method: "POST",
+      body: JSON.stringify(userData),
+    }),
+
+  updateUser: (id, userData) =>
+    fetchWithAuth(`/users/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(userData),
+    }),
+
+  deleteUser: (id) =>
+    fetchWithAuth(`/users/${id}`, {
+      method: "DELETE",
+    }),
+
+  // Инженеры
+  getEngineers: () => fetchWithAuth("/users/engineers"),
 };

@@ -53,10 +53,7 @@
           <p>Раздел в разработке</p>
         </div>
 
-        <div v-if="currentTab === 'admin'" class="coming-soon">
-          <h2>Панель администратора</h2>
-          <p>Раздел в разработке</p>
-        </div>
+        <AdminPanel v-if="currentTab === 'admin'" />
       </div>
     </main>
   </div>
@@ -65,18 +62,18 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useAuthStore } from "./stores/authStore";
-import { useDataStore } from "./stores/dataStore"; // ← ДОБАВЬТЕ ЭТОТ ИМПОРТ
+import { useDataStore } from "./stores/dataStore";
 import Auth from "./components/Auth.vue";
 import RatingTable from "./components/RatingTable.vue";
+import AdminPanel from "./components/admin/AdminPanel.vue";
 
 const authStore = useAuthStore();
-const dataStore = useDataStore(); // ← ДОБАВЬТЕ ЭТУ СТРОКУ
+const dataStore = useDataStore();
 const showAuth = ref(false);
 const currentTab = ref("table");
 
 onMounted(async () => {
   await authStore.checkAuth();
-  // Если пользователь уже авторизован, загружаем данные
   if (authStore.isAuthenticated) {
     await dataStore.loadAllData();
   }
@@ -84,17 +81,16 @@ onMounted(async () => {
 
 const handleLogin = async () => {
   console.log("Пользователь вошел:", authStore.user);
-  // Загружаем данные после входа
   await dataStore.loadAllData();
 };
 
 const logout = () => {
   authStore.logout();
   // Очищаем данные при выходе
-  dataStore.forestries = [];
-  dataStore.sections = [];
-  dataStore.indicators = [];
-  dataStore.rawData = [];
+  dataStore.forestries.value = [];
+  dataStore.sections.value = [];
+  dataStore.indicators.value = [];
+  dataStore.rawData.value = [];
 };
 
 const getRoleName = (role) => {
