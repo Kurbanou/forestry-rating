@@ -1,4 +1,3 @@
-// frontend/src/stores/dataStore.js
 import { defineStore } from "pinia";
 import { ref, computed, watch } from "vue";
 import { api } from "../lib/api";
@@ -15,6 +14,9 @@ export const useDataStore = defineStore("data", () => {
   const loading = ref(false);
   const currentPeriod = ref(new Date().toISOString().slice(0, 7));
 
+  // 👇 ДОБАВЛЯЕМ пользователей
+  const users = ref([]);
+
   // Кэш для баллов
   const scoreCache = ref(new Map());
 
@@ -22,7 +24,6 @@ export const useDataStore = defineStore("data", () => {
   async function loadAllData() {
     loading.value = true;
     try {
-      // Добавляем getAllResponsible в Promise.all
       const [
         forestriesData,
         sectionsData,
@@ -34,20 +35,66 @@ export const useDataStore = defineStore("data", () => {
         api.getSections(),
         api.getIndicators(),
         api.getRawData(currentPeriod.value),
-        api.getAllResponsible(), // Загружаем всех ответственных
+        api.getAllResponsible(),
       ]);
 
       forestries.value = forestriesData || [];
       sections.value = sectionsData || [];
       indicators.value = indicatorsData || [];
       rawData.value = rawDataData || [];
-      responsible.value = responsibleData || []; // Сохраняем ответственных
+      responsible.value = responsibleData || [];
 
-      console.log("Загружены ответственные:", responsible.value.length); // Для отладки
+      console.log("Загружены ответственные:", responsible.value.length);
     } catch (error) {
       console.error("Ошибка загрузки данных:", error);
     } finally {
       loading.value = false;
+    }
+  }
+
+  // 👇 НОВЫЕ МЕТОДЫ ДЛЯ ПОЛЬЗОВАТЕЛЕЙ
+  async function fetchUsers() {
+    try {
+      users.value = await api.getUsers();
+      return users.value;
+    } catch (error) {
+      console.error("Ошибка загрузки пользователей:", error);
+      return [];
+    }
+  }
+
+  async function createUser(userData) {
+    try {
+      const newUser = await api.createUser(userData);
+      users.value.push(newUser);
+      return newUser;
+    } catch (error) {
+      console.error("Ошибка создания пользователя:", error);
+      throw error;
+    }
+  }
+
+  async function updateUser(id, userData) {
+    try {
+      const updatedUser = await api.updateUser(id, userData);
+      const index = users.value.findIndex((u) => u.id === id);
+      if (index !== -1) {
+        users.value[index] = updatedUser;
+      }
+      return updatedUser;
+    } catch (error) {
+      console.error("Ошибка обновления пользователя:", error);
+      throw error;
+    }
+  }
+
+  async function deleteUser(id) {
+    try {
+      await api.deleteUser(id);
+      users.value = users.value.filter((u) => u.id !== id);
+    } catch (error) {
+      console.error("Ошибка удаления пользователя:", error);
+      throw error;
     }
   }
 
@@ -66,15 +113,10 @@ export const useDataStore = defineStore("data", () => {
 
   // Проверка, может ли пользователь редактировать показатель
   const canEditIndicator = (indicatorId) => {
-    // Админ может всё
     if (authStore.user?.role === "admin") return true;
-
-    // Инженер может редактировать только назначенные показатели
     if (authStore.user?.role === "engineer") {
       return isUserResponsibleForIndicator(authStore.user.id, indicatorId);
     }
-
-    // Наблюдатели и гости не могут редактировать
     return false;
   };
 
@@ -204,12 +246,14 @@ export const useDataStore = defineStore("data", () => {
     }
   }
 
+  // 👇 НЕ ЗАБЫТЬ ДОБАВИТЬ В RETURN
   return {
     forestries,
     sections,
     indicators,
     rawData,
     responsible,
+    users, // <-- добавить
     loading,
     currentPeriod,
     getIndicatorsBySection,
@@ -221,5 +265,9 @@ export const useDataStore = defineStore("data", () => {
     getScoreClass,
     loadAllData,
     saveValue,
+    fetchUsers, // <-- добавить
+    createUser, // <-- добавить
+    updateUser, // <-- добавить
+    deleteUser, // <-- добавить
   };
 });

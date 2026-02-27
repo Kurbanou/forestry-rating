@@ -86,11 +86,17 @@ const handleLogin = async () => {
 
 const logout = () => {
   authStore.logout();
+
   // Очищаем данные при выходе
   dataStore.forestries.value = [];
   dataStore.sections.value = [];
   dataStore.indicators.value = [];
   dataStore.rawData.value = [];
+
+  // 👇 ВАЖНО: переключаем на безопасную вкладку
+  currentTab.value = "table";
+
+  console.log("Выход выполнен, переключено на таблицу данных");
 };
 
 const getRoleName = (role) => {
