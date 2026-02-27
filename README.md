@@ -67,6 +67,7 @@ npm run dev
 
 ## Работа с базой данных
 
+```bash
 # Создать резервную копию
 
 docker exec -t forestry-db pg*dump -U admin forestry_rating > backup*$(date +%Y%m%d).sql
@@ -88,3 +89,4 @@ docker exec -it forestry-db psql -U admin -d forestry_rating -c "INSERT INTO use
 
 docker compose down -v
 docker compose up -d
+```
