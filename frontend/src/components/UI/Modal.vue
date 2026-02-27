@@ -1,6 +1,7 @@
 <template>
   <Teleport to="body">
-    <div v-if="show" class="modal-overlay" @click="$emit('close')">
+    <!-- <div v-if="show" class="modal-overlay" @click="$emit('close')"> -->
+    <div v-if="show" class="modal-overlay">
       <div class="modal-content" @click.stop>
         <button class="modal-close" @click="$emit('close')">×</button>
         <slot></slot>
