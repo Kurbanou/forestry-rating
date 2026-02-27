@@ -355,6 +355,105 @@ app.get("/api/forestries", async (req, res) => {
   }
 });
 
+// Получение лесничества по ID
+app.get("/api/forestries/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query("SELECT * FROM forestries WHERE id = $1", [
+      id,
+    ]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Лесничество не найдено" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Ошибка получения лесничества:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Создание лесничества
+app.post("/api/forestries", async (req, res) => {
+  try {
+    const { name } = req.body;
+    const token = req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({ error: "Не авторизован" });
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    const result = await pool.query(
+      "INSERT INTO forestries (name) VALUES ($1) RETURNING *",
+      [name],
+    );
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Ошибка создания лесничества:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Обновление лесничества
+app.put("/api/forestries/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+
+    const result = await pool.query(
+      "UPDATE forestries SET name = $1 WHERE id = $2 RETURNING *",
+      [name, id],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Лесничество не найдено" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Ошибка обновления лесничества:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Удаление лесничества
+app.delete("/api/forestries/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Проверяем, есть ли связанные данные
+    const relatedData = await pool.query(
+      "SELECT id FROM raw_data WHERE forestry_id = $1 LIMIT 1",
+      [id],
+    );
+
+    if (relatedData.rows.length > 0) {
+      return res.status(400).json({
+        error:
+          "Нельзя удалить лесничество, у которого есть данные. Сначала удалите все данные по этому лесничеству.",
+      });
+    }
+
+    const result = await pool.query(
+      "DELETE FROM forestries WHERE id = $1 RETURNING id",
+      [id],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Лесничество не найдено" });
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Ошибка удаления лесничества:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ============ ДАННЫЕ (RAW_DATA) ============
 
 // Получение данных за период

@@ -16,6 +16,12 @@
           📊 Показатели
         </button>
         <button
+          @click="currentTab = 'forestries'"
+          :class="{ active: currentTab === 'forestries' }"
+        >
+          🌳 Лесничества
+        </button>
+        <button
           @click="currentTab = 'users'"
           :class="{ active: currentTab === 'users' }"
         >
@@ -37,6 +43,12 @@
         @changed="handleDataChanged"
       />
 
+      <!-- Управление лесничествами -->
+      <ForestriesManager
+        v-if="currentTab === 'forestries'"
+        @changed="handleDataChanged"
+      />
+
       <!-- Управление пользователями -->
       <UsersManager
         v-if="currentTab === 'users'"
@@ -50,12 +62,12 @@
 import { ref } from "vue";
 import SectionsManager from "./SectionsManager.vue";
 import IndicatorsManager from "./IndicatorsManager.vue";
+import ForestriesManager from "./ForestriesManager.vue";
 import UsersManager from "./UsersManager.vue";
 
 const currentTab = ref("sections");
 
 const handleDataChanged = () => {
-  // Можно обновить данные в основном store
   console.log("Данные изменены");
 };
 </script>
@@ -82,6 +94,7 @@ const handleDataChanged = () => {
 .admin-tabs {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .admin-tabs button {

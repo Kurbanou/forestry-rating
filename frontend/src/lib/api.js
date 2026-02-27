@@ -142,6 +142,28 @@ export const api = {
       method: "DELETE",
     }),
 
+  // Лесничества
+  getForestries: () => fetchWithAuth("/forestries"),
+
+  getForestry: (id) => fetchWithAuth(`/forestries/${id}`),
+
+  createForestry: (data) =>
+    fetchWithAuth("/forestries", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  updateForestry: (id, data) =>
+    fetchWithAuth(`/forestries/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  deleteForestry: (id) =>
+    fetchWithAuth(`/forestries/${id}`, {
+      method: "DELETE",
+    }),
+
   // Инженеры
   getEngineers: () => fetchWithAuth("/users/engineers"),
 };
