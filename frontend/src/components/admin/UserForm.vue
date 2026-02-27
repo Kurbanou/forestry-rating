@@ -13,7 +13,23 @@
         />
       </div>
 
-      <div class="form-group" v-if="!user">
+      <!-- 👇 ПОЛЕ ДЛЯ ПАРОЛЯ ПРИ РЕДАКТИРОВАНИИ (НОВОЕ) -->
+      <div class="form-group" v-if="user">
+        <label>Новый пароль</label>
+        <input
+          v-model="form.password"
+          type="password"
+          placeholder="Оставьте пустым, если не хотите менять"
+          minlength="4"
+        />
+        <small class="hint"
+          >Заполните, только если хотите сменить пароль. Минимум 4
+          символа</small
+        >
+      </div>
+
+      <!-- 👇 ПОЛЕ ДЛЯ ПАРОЛЯ ПРИ СОЗДАНИИ (БЫЛО) -->
+      <div class="form-group" v-else>
         <label>Пароль *</label>
         <input
           v-model="form.password"
@@ -121,7 +137,7 @@ watch(
       form.email = newVal.email || "";
       form.role = newVal.role || "viewer";
       form.forestry_ids = newVal.forestry_ids || [];
-      // пароль не заполняем при редактировании
+      form.password = ""; // 👈 ВАЖНО: сбрасываем пароль при открытии формы редактирования
     } else {
       form.email = "";
       form.password = "";
@@ -133,10 +149,17 @@ watch(
 );
 
 const handleSubmit = () => {
-  emit("save", { ...form });
+  // Если это редактирование и пароль пустой - удаляем его из данных
+  const submitData = { ...form };
+
+  // 👇 Для редактирования: если пароль пустой - не отправляем его
+  if (props.user && !submitData.password) {
+    delete submitData.password;
+  }
+
+  emit("save", submitData);
 };
 </script>
-
 <style scoped>
 .user-form {
   padding: 20px;
