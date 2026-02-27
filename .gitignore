@@ -1,0 +1,46 @@
+# Зависимости
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Сборка
+dist/
+dist-ssr/
+*.local
+
+# Редакторы
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Docker volumes (но не docker-compose.yml)
+/postgres-data/
+
+# Логи
+logs/
+*.log
+
+# Тесты
+coverage/
+.nyc_output/
+
+# Backend specific
+backend/node_modules/
+backend/package-lock.json
+
+# Frontend specific
+frontend/node_modules/
+frontend/dist/
+frontend/.env
