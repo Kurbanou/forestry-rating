@@ -48,10 +48,8 @@
       <div class="content">
         <RatingTable v-if="currentTab === 'table'" />
 
-        <div v-if="currentTab === 'stats'" class="coming-soon">
-          <h2>Статистика и графики</h2>
-          <p>Раздел в разработке</p>
-        </div>
+        <!-- 👇 Подключаем компонент статистики -->
+        <StatsView v-if="currentTab === 'stats'" />
 
         <AdminPanel v-if="currentTab === 'admin'" />
       </div>
@@ -66,6 +64,8 @@ import { useDataStore } from "./stores/dataStore";
 import Auth from "./components/Auth.vue";
 import RatingTable from "./components/RatingTable.vue";
 import AdminPanel from "./components/admin/AdminPanel.vue";
+// 👇 Импортируем новый компонент статистики
+import StatsView from "./components/StatsView.vue";
 
 const authStore = useAuthStore();
 const dataStore = useDataStore();
@@ -114,9 +114,8 @@ const getRoleName = (role) => {
   return roles[role] || role;
 };
 
-// В конец setup добавьте:
+// Для отладки в консоли
 onMounted(() => {
-  // Для отладки в консоли
   window.debugStore = dataStore;
 });
 </script>
@@ -222,20 +221,5 @@ header h1 {
   margin: 0 auto;
 }
 
-.coming-soon {
-  text-align: center;
-  padding: 50px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.coming-soon h2 {
-  margin-bottom: 10px;
-  color: #333;
-}
-
-.coming-soon p {
-  color: #666;
-}
+/* Стили для StatsView будут в самом компоненте */
 </style>
