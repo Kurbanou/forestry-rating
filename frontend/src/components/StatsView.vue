@@ -19,11 +19,7 @@
 
     <div class="stats-content">
       <QuarterlyComparison v-if="activeTab === 'quarterly'" />
-
-      <div v-if="activeTab === 'trend'" class="coming-soon">
-        <h3>Динамика рейтинга</h3>
-        <p>Раздел в разработке</p>
-      </div>
+      <TrendChart v-if="activeTab === 'trend'" />
     </div>
   </div>
 </template>
@@ -31,6 +27,7 @@
 <script setup>
 import { ref } from "vue";
 import QuarterlyComparison from "./QuarterlyComparison.vue";
+import TrendChart from "./TrendChart.vue";
 
 const activeTab = ref("quarterly");
 </script>
@@ -75,22 +72,5 @@ const activeTab = ref("quarterly");
 
 .stats-content {
   min-height: 500px;
-}
-
-.coming-soon {
-  text-align: center;
-  padding: 100px 20px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.coming-soon h3 {
-  margin-bottom: 10px;
-  color: #333;
-}
-
-.coming-soon p {
-  color: #666;
 }
 </style>
