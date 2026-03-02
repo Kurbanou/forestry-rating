@@ -72,8 +72,8 @@
                           cancelEditing(forestry.id, indicator.id, $event)
                         "
                         :placeholder="indicator.unit"
-                        min="0"
-                        step="0.1"
+                        min="-300"
+                        step="10"
                         class="value-input"
                         :ref="
                           (el) => setInputRef(el, forestry.id, indicator.id)

@@ -132,6 +132,7 @@ export const useDataStore = defineStore("data", () => {
   }
 
   // Получение баллов для конкретной ячейки
+  // Получение баллов для конкретной ячейки
   function getScore(forestryId, indicatorId, period = currentPeriod.value) {
     const cacheKey = `${forestryId}-${indicatorId}-${period}`;
 
@@ -146,11 +147,12 @@ export const useDataStore = defineStore("data", () => {
 
     let score = 0;
 
-    if (indicator.type === "penalty") {
-      score = -Math.abs(value);
-    } else if (indicator.type === "bonus") {
-      score = Math.abs(value);
+    // 👇 НОВАЯ ЛОГИКА: объединяем бонус/штраф в один тип
+    if (indicator.type === "manual") {
+      // Бонус/Штраф: берем значение как есть (может быть +5 или -3)
+      score = value;
     } else {
+      // Обычный: расчет по формуле относительно лидера
       const maxValue = Math.max(
         0,
         ...rawData.value

@@ -48,9 +48,10 @@
         <div class="form-group">
           <label>Тип показателя *</label>
           <select v-model="form.type" required @change="handleTypeChange">
-            <option value="positive">📊 Обычный (расчет по формуле)</option>
-            <option value="penalty">⚠️ Штрафной (вычитает баллы)</option>
-            <option value="bonus">🎁 Бонусный (добавляет баллы)</option>
+            <option value="regular">📊 Обычный (расчет по формуле)</option>
+            <option value="manual">
+              ➕➖ Бонус/Штраф (ручной ввод баллов)
+            </option>
           </select>
         </div>
 
@@ -63,7 +64,11 @@
               required
               min="1"
               step="1"
+              :disabled="form.type === 'manual'"
             />
+            <small v-if="form.type === 'manual'" class="hint">
+              Для бонусов/штрафов не используется
+            </small>
           </div>
 
           <div class="form-group half">
@@ -72,7 +77,11 @@
               v-model="form.unit"
               type="text"
               :placeholder="getUnitPlaceholder"
+              :disabled="form.type === 'manual'"
             />
+            <small v-if="form.type === 'manual'" class="hint">
+              Вводятся сразу баллы
+            </small>
           </div>
         </div>
 
@@ -142,9 +151,9 @@ const indicatorId = computed(() => {
 const form = reactive({
   section_id: "",
   name: "",
-  type: "positive",
+  type: "regular",
   max_weight: 50,
-  unit: "га",
+  unit: "",
   description: "",
   is_active: true,
 });
@@ -155,16 +164,16 @@ watch(
     if (newVal) {
       form.section_id = newVal.section_id || "";
       form.name = newVal.name || "";
-      form.type = newVal.type || "positive";
+      form.type = newVal.type || "regular";
       form.max_weight = newVal.max_weight || 50;
-      form.unit = newVal.unit || "га";
+      form.unit = newVal.unit || "";
       form.description = newVal.description || "";
     } else {
       form.section_id = "";
       form.name = "";
-      form.type = "positive";
+      form.type = "regular";
       form.max_weight = 50;
-      form.unit = "га";
+      form.unit = "";
       form.description = "";
     }
   },
@@ -172,53 +181,42 @@ watch(
 );
 
 const handleTypeChange = () => {
-  // Меняем подсказки в зависимости от типа
-  switch (form.type) {
-    case "penalty":
-      form.unit = "баллы";
-      break;
-    case "bonus":
-      form.unit = "баллы";
-      break;
-    default:
-      form.unit = "га";
+  if (form.type === "manual") {
+    form.unit = ""; // Очищаем единицы измерения
+    form.max_weight = 0; // Обнуляем макс. балл
+  } else {
+    form.unit = "га"; // Ставим значение по умолчанию
+    form.max_weight = 50;
   }
 };
 
 const getUnitPlaceholder = computed(() => {
-  switch (form.type) {
-    case "penalty":
-    case "bonus":
-      return "баллы";
-    default:
-      return "га, км, шт, м³...";
-  }
+  return form.type === "manual" ? "баллы" : "га, км, шт, м³...";
 });
 
 const getDescriptionPlaceholder = computed(() => {
-  switch (form.type) {
-    case "penalty":
-      return "За что начисляется штраф? Например: За нарушение сроков";
-    case "bonus":
-      return "За что начисляется бонус? Например: За перевыполнение плана";
-    default:
-      return "Как правильно заполнять этот показатель";
-  }
+  return form.type === "manual"
+    ? "За что начисляются баллы? Например: Премия за хорошую работу (+10) или штраф за нарушение (-5)"
+    : "Как правильно заполнять этот показатель";
 });
 
 const getTypeHint = computed(() => {
   switch (form.type) {
-    case "penalty":
-      return "Штрафные показатели вводятся отрицательными числами (например: -50). Они автоматически вычтутся из общей суммы.";
-    case "bonus":
-      return "Бонусные показатели вводятся положительными числами (например: +30). Они добавятся к общей сумме.";
+    case "manual":
+      return "Бонус/Штраф: вводите сразу баллы. Можно ставить как положительные (бонус), так и отрицательные (штраф) значения. Например: +10 за достижение, -5 за нарушение.";
     default:
       return "Обычные показатели вводятся в натурных единицах (га, км, шт). Баллы рассчитываются по формуле: (введенное значение / максимум по всем) * максимальный балл.";
   }
 });
 
 const handleSubmit = () => {
-  emit("save", { ...form });
+  // Для manual типа не отправляем max_weight и unit
+  const submitData = { ...form };
+  if (form.type === "manual") {
+    // Можно оставить как есть или удалить ненужные поля
+    // Бэкенд сам решит, что с ними делать
+  }
+  emit("save", submitData);
 };
 
 const handleResponsibleChanged = () => {
@@ -233,11 +231,14 @@ const handleResponsibleChanged = () => {
   max-width: 800px;
   max-height: 90vh;
   overflow-y: auto;
+  background: white;
+  border-radius: 8px;
 }
 
 .indicator-form h3 {
   margin: 0 0 20px 0;
   color: #333;
+  font-size: 1.5rem;
 }
 
 /* Стили для вкладок */
@@ -300,12 +301,34 @@ const handleResponsibleChanged = () => {
   border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 14px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
 }
 
 .form-group textarea {
   resize: vertical;
+  min-height: 80px;
 }
 
+/* Стили для заблокированных полей */
+input:disabled,
+select:disabled,
+textarea:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Информационные блоки */
 .info-box {
   padding: 15px;
   border-radius: 6px;
@@ -314,34 +337,41 @@ const handleResponsibleChanged = () => {
   line-height: 1.5;
 }
 
-.info-box.positive {
+.info-box.regular {
   background: #e8f5e9;
   border: 1px solid #a5d6a7;
   color: #2e7d32;
 }
 
-.info-box.penalty {
-  background: #ffebee;
-  border: 1px solid #ef9a9a;
-  color: #c62828;
-}
-
-.info-box.bonus {
-  background: #fff8e1;
-  border: 1px solid #ffe082;
-  color: #ff8f00;
+.info-box.manual {
+  background: #fff3e0;
+  border: 1px solid #ffb74d;
+  color: #e65100;
 }
 
 .info-box strong {
   display: block;
   margin-bottom: 5px;
+  font-weight: 600;
 }
 
+/* Подсказки */
+.hint {
+  display: block;
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* Кнопки */
 .form-actions {
   display: flex;
   gap: 10px;
   justify-content: flex-end;
   margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
 }
 
 .btn-save {
@@ -352,10 +382,13 @@ const handleResponsibleChanged = () => {
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
+  transition: all 0.2s;
 }
 
 .btn-save:hover {
   background: #45a049;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btn-cancel {
@@ -366,14 +399,63 @@ const handleResponsibleChanged = () => {
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
+  transition: all 0.2s;
 }
 
 .btn-cancel:hover {
   background: #e5e5e5;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Стили для вкладки с ответственными */
 .responsible-tab {
   padding: 10px 0;
+  min-height: 300px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .indicator-form {
+    min-width: auto;
+    padding: 15px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .form-group.half {
+    width: 100%;
+  }
+
+  .form-tabs {
+    flex-wrap: wrap;
+  }
+
+  .form-tabs button {
+    flex: 1;
+    min-width: 120px;
+  }
+}
+
+/* Скролл для длинных форм */
+.indicator-form::-webkit-scrollbar {
+  width: 8px;
+}
+
+.indicator-form::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.indicator-form::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.indicator-form::-webkit-scrollbar-thumb:hover {
+  background: #999;
 }
 </style>
