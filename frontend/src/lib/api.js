@@ -146,6 +146,13 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
+  // ============ Данные ============
+  getRawData: (period) =>
+    fetchWithAuth(`/raw-data${period ? `?period=${period}` : ""}`),
+
+  // Добавить новый метод
+  getAllRawData: () => fetchWithAuth("/raw-data?all=true"), // или просто /raw-data без параметра
+
   // ============ Пользователи ============
   getUsers: () => fetchWithAuth("/users"),
 

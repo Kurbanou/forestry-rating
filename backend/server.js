@@ -456,7 +456,7 @@ app.delete("/api/forestries/:id", async (req, res) => {
 
 // ============ ДАННЫЕ (RAW_DATA) ============
 
-// Получение данных за период
+// Получение данных за период (или все данные)
 app.get("/api/raw-data", async (req, res) => {
   try {
     const { period } = req.query;
@@ -464,12 +464,12 @@ app.get("/api/raw-data", async (req, res) => {
     let query = "SELECT * FROM raw_data";
     let params = [];
 
-    if (period) {
+    if (period && period !== "all") {
       query +=
         " WHERE period::text LIKE $1 ORDER BY period, forestry_id, indicator_id";
       params = [`${period}%`];
     } else {
-      query += " ORDER BY period, forestry_id, indicator_id";
+      query += " ORDER BY period, forestry_id, indicator_id"; // ВСЕ ДАННЫЕ
     }
 
     const result = await pool.query(query, params);

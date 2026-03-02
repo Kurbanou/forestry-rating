@@ -1,6 +1,6 @@
 <template>
   <div class="quarterly-comparison">
-    <h3>📊 Сравнение лесничеств по кварталам</h3>
+    <h2>📊 Сравнение по кварталам</h2>
 
     <div class="controls">
       <div class="control-group">
@@ -28,23 +28,26 @@
     </div>
 
     <div class="stats-summary" v-if="chartData.length">
-      <div class="stat-card">
-        <strong>Лидер квартала:</strong>
-        <span :style="{ color: '#4caf50' }">
-          {{ topForestry.name }} — {{ topForestry.value.toFixed(2) }} баллов
-        </span>
+      <div class="stat-card leader">
+        <div class="stat-label">Лидер</div>
+        <div class="stat-value">{{ topForestry.name }}</div>
+        <div class="stat-score">{{ topForestry.value.toFixed(2) }} баллов</div>
       </div>
-      <div class="stat-card">
-        <strong>Аутсайдер:</strong>
-        <span :style="{ color: '#f44336' }">
-          {{ bottomForestry.name }} —
+      <div class="stat-card average">
+        <div class="stat-label">Средний балл</div>
+        <div class="stat-value">{{ averageScore.toFixed(2) }}</div>
+      </div>
+      <div class="stat-card outsider">
+        <div class="stat-label">Аутсайдер</div>
+        <div class="stat-value">{{ bottomForestry.name }}</div>
+        <div class="stat-score">
           {{ bottomForestry.value.toFixed(2) }} баллов
-        </span>
+        </div>
       </div>
-      <div class="stat-card">
-        <strong>Средний балл:</strong>
-        <span>{{ averageScore.toFixed(2) }}</span>
-      </div>
+    </div>
+
+    <div v-if="!chartData.length" class="no-data">
+      Нет данных за выбранный период
     </div>
   </div>
 </template>
@@ -61,18 +64,17 @@ let chart = null;
 const selectedYear = ref(new Date().getFullYear());
 const selectedQuarter = ref("1");
 
-// Доступные годы из данных
+// Доступные годы из всех данных
 const availableYears = computed(() => {
   const years = new Set();
   dataStore.rawData.forEach((item) => {
     if (item.period) {
       const date = new Date(item.period);
-      // Учитываем смещение часового пояса
       const localDate = new Date(date.getTime() + 5 * 60 * 60 * 1000);
       years.add(localDate.getFullYear());
     }
   });
-  return Array.from(years).sort((a, b) => b - a); // по убыванию
+  return Array.from(years).sort((a, b) => b - a);
 });
 
 // Получить месяцы квартала
@@ -91,43 +93,48 @@ const getQuarterMonths = (quarter) => {
   }
 };
 
-// Получить рейтинг лесничества за конкретный месяц
-const getRatingForMonth = (forestryId, year, month) => {
-  const period = `${year}-${String(month).padStart(2, "0")}`;
-  let total = 0;
+// Получить средний балл за квартал для лесничества
+const getQuarterAverage = (forestryId, year, quarter) => {
+  const months = getQuarterMonths(quarter);
+  let totalScore = 0;
+  let monthsWithData = 0;
 
-  dataStore.indicators.forEach((indicator) => {
-    total += dataStore.getScore(forestryId, indicator.id, period);
-  });
+  months.forEach((month) => {
+    const period = `${year}-${String(month).padStart(2, "0")}`;
+    let forestryTotal = 0;
+    let hasData = false;
 
-  return total;
-};
-
-// Данные для графика (среднее за квартал)
-const chartData = computed(() => {
-  const months = getQuarterMonths(selectedQuarter.value);
-
-  return dataStore.forestries.map((forestry) => {
-    let totalScore = 0;
-    let monthsWithData = 0;
-
-    months.forEach((month) => {
-      const score = getRatingForMonth(forestry.id, selectedYear.value, month);
+    // Суммируем все показатели за месяц
+    dataStore.indicators.forEach((indicator) => {
+      const score = dataStore.getScore(forestryId, indicator.id, period);
       if (score !== 0) {
-        totalScore += score;
-        monthsWithData++;
+        forestryTotal += score;
+        hasData = true;
       }
     });
 
-    // Среднее за квартал (если есть данные)
-    const avgScore = monthsWithData > 0 ? totalScore / monthsWithData : 0;
+    if (hasData) {
+      totalScore += forestryTotal;
+      monthsWithData++;
+    }
+  });
 
-    return {
+  return monthsWithData > 0 ? totalScore / monthsWithData : 0;
+};
+
+// Данные для графика
+const chartData = computed(() => {
+  return dataStore.forestries
+    .map((forestry) => ({
       forestryId: forestry.id,
       name: forestry.name,
-      value: avgScore,
-    };
-  });
+      value: getQuarterAverage(
+        forestry.id,
+        selectedYear.value,
+        selectedQuarter.value,
+      ),
+    }))
+    .filter((item) => item.value > 0); // Показываем только лесничества с данными
 });
 
 // Топ и аутсайдер
@@ -161,7 +168,7 @@ const updateChart = () => {
 
   const ctx = comparisonChart.value.getContext("2d");
 
-  // Сортируем лесничества по убыванию баллов
+  // Сортируем по убыванию
   const sortedData = [...chartData.value].sort((a, b) => b.value - a.value);
 
   chart = new Chart(ctx, {
@@ -171,11 +178,11 @@ const updateChart = () => {
       datasets: [
         {
           label: `Средний балл за ${selectedQuarter.value} квартал ${selectedYear.value}`,
-          data: sortedData.map((item) => item.value.toFixed(2)),
+          data: sortedData.map((item) => Number(item.value.toFixed(2))),
           backgroundColor: sortedData.map((item, index) => {
-            if (index === 0) return "#4caf50"; // лидер - зеленый
-            if (index === sortedData.length - 1) return "#f44336"; // аутсайдер - красный
-            return "#2196f3"; // остальные - синий
+            if (index === 0) return "#4caf50"; // Лидер - зеленый
+            if (index === sortedData.length - 1) return "#f44336"; // Аутсайдер - красный
+            return "#2196f3"; // Остальные - синий
           }),
           borderColor: "#fff",
           borderWidth: 2,
@@ -187,32 +194,17 @@ const updateChart = () => {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          display: false,
-        },
+        legend: { display: false },
         tooltip: {
           callbacks: {
-            label: (context) => {
-              return `${context.raw} баллов`;
-            },
+            label: (context) => `${context.raw} баллов`,
           },
         },
       },
       scales: {
         y: {
           beginAtZero: true,
-          title: {
-            display: true,
-            text: "Баллы",
-          },
-          grid: {
-            color: "#f0f0f0",
-          },
-        },
-        x: {
-          grid: {
-            display: false,
-          },
+          title: { display: true, text: "Баллы" },
         },
       },
     },
@@ -220,7 +212,17 @@ const updateChart = () => {
 };
 
 // Следим за изменениями
-watch([selectedYear, selectedQuarter], updateChart);
+watch([selectedYear, selectedQuarter], () => {
+  updateChart();
+});
+
+watch(
+  () => dataStore.rawData,
+  () => {
+    updateChart();
+  },
+  { deep: true },
+);
 
 onMounted(() => {
   updateChart();
@@ -235,10 +237,9 @@ onMounted(() => {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.quarterly-comparison h3 {
+.quarterly-comparison h2 {
   margin: 0 0 20px 0;
   color: #333;
-  font-size: 1.2rem;
 }
 
 .controls {
@@ -280,40 +281,59 @@ onMounted(() => {
 }
 
 .stats-summary {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  padding: 20px;
-  background: #f9f9f9;
-  border-radius: 8px;
+  margin-top: 30px;
 }
 
 .stat-card {
+  padding: 20px;
+  border-radius: 8px;
   text-align: center;
-  padding: 10px 20px;
-  background: white;
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  min-width: 200px;
+  color: white;
 }
 
-.stat-card strong {
-  display: block;
-  margin-bottom: 5px;
-  color: #666;
+.stat-card.leader {
+  background: linear-gradient(135deg, #4caf50, #45a049);
+}
+
+.stat-card.average {
+  background: linear-gradient(135deg, #2196f3, #1976d2);
+}
+
+.stat-card.outsider {
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+}
+
+.stat-label {
   font-size: 14px;
+  opacity: 0.9;
+  margin-bottom: 10px;
 }
 
-.stat-card span {
+.stat-value {
   font-size: 18px;
-  font-weight: 600;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.stat-score {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.no-data {
+  text-align: center;
+  padding: 60px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  color: #666;
 }
 
 @media (max-width: 768px) {
   .controls {
     flex-direction: column;
-    gap: 10px;
   }
 
   .control-group {
@@ -326,11 +346,7 @@ onMounted(() => {
   }
 
   .stats-summary {
-    flex-direction: column;
-  }
-
-  .stat-card {
-    width: 100%;
+    grid-template-columns: 1fr;
   }
 }
 </style>

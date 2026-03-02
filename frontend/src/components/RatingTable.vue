@@ -390,10 +390,13 @@ const changePeriod = async (event) => {
   const newPeriod = event.target.value;
   console.log("Смена периода на:", newPeriod);
 
+  // НЕ перезагружаем все данные, только меняем период в store
   dataStore.setPeriod(newPeriod);
-  await dataStore.loadAllData(true); // Принудительная загрузка
 
-  console.log("Данные загружены за новый период");
+  // Не вызываем loadAllData!
+  // await dataStore.loadAllData(true);
+
+  console.log("Период изменен");
 };
 
 const formatPeriod = (period) => {

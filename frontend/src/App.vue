@@ -45,12 +45,11 @@
         </button>
       </div>
 
-      <div class="content">
+      <div v-if="dataStore.loading" class="loading">Загрузка данных...</div>
+
+      <div v-else class="content">
         <RatingTable v-if="currentTab === 'table'" />
-
-        <!-- 👇 Подключаем компонент статистики -->
         <StatsView v-if="currentTab === 'stats'" />
-
         <AdminPanel v-if="currentTab === 'admin'" />
       </div>
     </main>
@@ -64,7 +63,6 @@ import { useDataStore } from "./stores/dataStore";
 import Auth from "./components/Auth.vue";
 import RatingTable from "./components/RatingTable.vue";
 import AdminPanel from "./components/admin/AdminPanel.vue";
-// 👇 Импортируем новый компонент статистики
 import StatsView from "./components/StatsView.vue";
 
 const authStore = useAuthStore();
@@ -73,36 +71,18 @@ const showAuth = ref(false);
 const currentTab = ref("table");
 
 onMounted(async () => {
-  console.log("App mounted");
-
-  // Проверяем авторизацию (для прав редактирования)
   await authStore.checkAuth();
-
-  // 👇 ВСЕГДА загружаем данные для просмотра
-  console.log("Загружаем данные для всех...");
   await dataStore.loadAllData();
-  console.log("Данные загружены");
 });
 
-const handleLogin = async () => {
-  console.log("Пользователь вошел:", authStore.user);
-  // При входе данные уже есть, но можно обновить если нужно
-  // await dataStore.loadAllData(true); // принудительно
+const handleLogin = () => {
+  // Данные уже загружены, можно обновить если нужно
+  // dataStore.loadAllData(true);
 };
 
 const logout = () => {
   authStore.logout();
-
-  // 👇 НЕ очищаем данные при выходе - гость тоже должен видеть
-  // dataStore.forestries.value = [];
-  // dataStore.sections.value = [];
-  // dataStore.indicators.value = [];
-  // dataStore.rawData.value = [];
-
-  // 👇 переключаем на безопасную вкладку
   currentTab.value = "table";
-
-  console.log("Выход выполнен, переключено на таблицу данных");
 };
 
 const getRoleName = (role) => {
@@ -113,11 +93,6 @@ const getRoleName = (role) => {
   };
   return roles[role] || role;
 };
-
-// Для отладки в консоли
-onMounted(() => {
-  window.debugStore = dataStore;
-});
 </script>
 
 <style>
@@ -215,11 +190,16 @@ header h1 {
   border-bottom-color: #4caf50;
 }
 
+.loading {
+  text-align: center;
+  padding: 50px;
+  font-size: 18px;
+  color: #666;
+}
+
 .content {
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
 }
-
-/* Стили для StatsView будут в самом компоненте */
 </style>

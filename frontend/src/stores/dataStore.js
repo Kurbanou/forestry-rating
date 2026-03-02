@@ -19,39 +19,23 @@ export const useDataStore = defineStore("data", () => {
   const scoreCache = ref(new Map());
 
   // Загрузка всех данных
-  async function loadAllData(force = false) {
-    if (dataLoaded.value && !force) {
-      console.log("Данные уже загружены, пропускаем");
-      return;
-    }
-
+  async function loadAllData() {
     loading.value = true;
     try {
-      console.log("Загружаем данные за период:", currentPeriod.value);
+      const [forestriesData, sectionsData, indicatorsData, rawDataData] =
+        await Promise.all([
+          api.getForestries(),
+          api.getSections(),
+          api.getIndicators(),
+          api.getAllRawData(), // ← ЗАГРУЖАЕМ ВСЕ ДАННЫЕ, а не только за период
+        ]);
 
-      const [
-        forestriesData,
-        sectionsData,
-        indicatorsData,
-        rawDataData,
-        responsibleData,
-      ] = await Promise.all([
-        api.getForestries(),
-        api.getSections(),
-        api.getIndicators(),
-        api.getRawData(currentPeriod.value),
-        api.getAllResponsible(),
-      ]);
+      forestries.value = forestriesData;
+      sections.value = sectionsData;
+      indicators.value = indicatorsData;
+      rawData.value = rawDataData;
 
-      forestries.value = forestriesData || [];
-      sections.value = sectionsData || [];
-      indicators.value = indicatorsData || [];
-      rawData.value = rawDataData || [];
-      responsible.value = responsibleData || [];
-
-      dataLoaded.value = true;
-
-      console.log("Загружены ответственные:", responsible.value.length);
+      console.log("✅ Загружено записей rawData:", rawDataData.length); // Должно быть 37
     } catch (error) {
       console.error("Ошибка загрузки данных:", error);
     } finally {
@@ -128,9 +112,9 @@ export const useDataStore = defineStore("data", () => {
   function getValue(forestryId, indicatorId, period = currentPeriod.value) {
     const [year, month] = period.split("-").map(Number);
 
-    console.log(
-      `🔍 getValue: ищем forestry=${forestryId}, indicator=${indicatorId}, за период ${year}-${month}`,
-    );
+    // console.log(
+    //   `🔍 getValue: ищем forestry=${forestryId}, indicator=${indicatorId}, за период ${year}-${month}`,
+    // );
 
     const item = rawData.value.find((r) => {
       if (!r.period) return false;
@@ -145,9 +129,9 @@ export const useDataStore = defineStore("data", () => {
       const itemYear = localDate.getFullYear();
       const itemMonth = localDate.getMonth() + 1;
 
-      console.log(
-        `   запись: forestry=${r.forestry_id}, indicator=${r.indicator_id}, period=${r.period}, локальная дата=${itemYear}-${itemMonth}, значение=${r.value}`,
-      );
+      // console.log(
+      //   `   запись: forestry=${r.forestry_id}, indicator=${r.indicator_id}, period=${r.period}, локальная дата=${itemYear}-${itemMonth}, значение=${r.value}`,
+      // );
 
       return (
         r.forestry_id === forestryId &&
@@ -158,7 +142,7 @@ export const useDataStore = defineStore("data", () => {
     });
 
     const value = item?.value;
-    console.log(`   результат:`, value !== undefined ? Number(value) : 0);
+    // console.log(`   результат:`, value !== undefined ? Number(value) : 0);
 
     return value !== undefined ? Number(value) : 0;
   }
@@ -178,10 +162,12 @@ export const useDataStore = defineStore("data", () => {
 
     let score = 0;
 
+    // Тип 2: Балловые (manual) - просто берем введенное значение
     if (indicator.type === "manual") {
-      score = value;
-    } else {
-      // Для обычных показателей нужно фильтровать данные за тот же период
+      score = value; // Может быть положительным (бонус) или отрицательным (штраф)
+    }
+    // Тип 1: Обычные (positive) - расчет по формуле
+    else {
       const [year, month] = period.split("-").map(Number);
 
       const periodValues = rawData.value
@@ -253,14 +239,14 @@ export const useDataStore = defineStore("data", () => {
       const localDate = new Date(year, month - 1, 1, 12, 0, 0);
       const periodDate = new Date(localDate.getTime() - 5 * 60 * 60 * 1000);
 
-      console.log("💾 Сохраняем:", {
-        forestryId,
-        indicatorId,
-        value,
-        period,
-        localDate: localDate.toISOString(),
-        periodDate: periodDate.toISOString(),
-      });
+      // console.log("💾 Сохраняем:", {
+      //   forestryId,
+      //   indicatorId,
+      //   value,
+      //   period,
+      //   localDate: localDate.toISOString(),
+      //   periodDate: periodDate.toISOString(),
+      // });
 
       const response = await api.saveRawData({
         forestry_id: forestryId,
@@ -269,7 +255,7 @@ export const useDataStore = defineStore("data", () => {
         period: periodDate.toISOString(),
       });
 
-      console.log("✅ Ответ сервера:", response);
+      // console.log("✅ Ответ сервера:", response);
 
       // Обновляем локальный кэш
       const existingIndex = rawData.value.findIndex((r) => {
