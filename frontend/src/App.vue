@@ -73,27 +73,33 @@ const showAuth = ref(false);
 const currentTab = ref("table");
 
 onMounted(async () => {
+  console.log("App mounted");
+
+  // Проверяем авторизацию (для прав редактирования)
   await authStore.checkAuth();
-  if (authStore.isAuthenticated) {
-    await dataStore.loadAllData();
-  }
+
+  // 👇 ВСЕГДА загружаем данные для просмотра
+  console.log("Загружаем данные для всех...");
+  await dataStore.loadAllData();
+  console.log("Данные загружены");
 });
 
 const handleLogin = async () => {
   console.log("Пользователь вошел:", authStore.user);
-  await dataStore.loadAllData();
+  // При входе данные уже есть, но можно обновить если нужно
+  // await dataStore.loadAllData(true); // принудительно
 };
 
 const logout = () => {
   authStore.logout();
 
-  // Очищаем данные при выходе
-  dataStore.forestries.value = [];
-  dataStore.sections.value = [];
-  dataStore.indicators.value = [];
-  dataStore.rawData.value = [];
+  // 👇 НЕ очищаем данные при выходе - гость тоже должен видеть
+  // dataStore.forestries.value = [];
+  // dataStore.sections.value = [];
+  // dataStore.indicators.value = [];
+  // dataStore.rawData.value = [];
 
-  // 👇 ВАЖНО: переключаем на безопасную вкладку
+  // 👇 переключаем на безопасную вкладку
   currentTab.value = "table";
 
   console.log("Выход выполнен, переключено на таблицу данных");
@@ -107,6 +113,12 @@ const getRoleName = (role) => {
   };
   return roles[role] || role;
 };
+
+// В конец setup добавьте:
+onMounted(() => {
+  // Для отладки в консоли
+  window.debugStore = dataStore;
+});
 </script>
 
 <style>

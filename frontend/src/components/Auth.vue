@@ -41,7 +41,7 @@
         </button>
       </form>
 
-      <p class="toggle">
+      <!-- <p class="toggle">
         <a href="#" @click.prevent="isLogin = !isLogin">
           {{
             isLogin
@@ -49,14 +49,14 @@
               : "Уже есть аккаунт? Войти"
           }}
         </a>
-      </p>
+      </p> -->
 
       <!-- Тестовые данные для входа -->
-      <div class="test-data" v-if="isLogin">
+      <!-- <div class="test-data" v-if="isLogin">
         <p><strong>Тестовые аккаунты:</strong></p>
         <p>Админ: admin@example.com / admin123</p>
         <p>Инженер: engineer@example.com / engineer123</p>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

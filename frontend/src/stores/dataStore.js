@@ -14,16 +14,21 @@ export const useDataStore = defineStore("data", () => {
   const loading = ref(false);
   const currentPeriod = ref(new Date().toISOString().slice(0, 7));
 
-  // 👇 ДОБАВЛЯЕМ пользователей
+  const dataLoaded = ref(false);
   const users = ref([]);
-
-  // Кэш для баллов
   const scoreCache = ref(new Map());
 
   // Загрузка всех данных
-  async function loadAllData() {
+  async function loadAllData(force = false) {
+    if (dataLoaded.value && !force) {
+      console.log("Данные уже загружены, пропускаем");
+      return;
+    }
+
     loading.value = true;
     try {
+      console.log("Загружаем данные за период:", currentPeriod.value);
+
       const [
         forestriesData,
         sectionsData,
@@ -43,6 +48,8 @@ export const useDataStore = defineStore("data", () => {
       indicators.value = indicatorsData || [];
       rawData.value = rawDataData || [];
       responsible.value = responsibleData || [];
+
+      dataLoaded.value = true;
 
       console.log("Загружены ответственные:", responsible.value.length);
     } catch (error) {
@@ -98,12 +105,10 @@ export const useDataStore = defineStore("data", () => {
     }
   }
 
-  // Получение показателей по разделу
   const getIndicatorsBySection = (sectionId) => {
     return indicators.value.filter((i) => i.section_id === sectionId);
   };
 
-  // Проверка, отвечает ли пользователь за показатель
   function isUserResponsibleForIndicator(userId, indicatorId) {
     if (!userId || !indicatorId) return false;
     return responsible.value.some(
@@ -111,7 +116,6 @@ export const useDataStore = defineStore("data", () => {
     );
   }
 
-  // Проверка, может ли пользователь редактировать показатель
   const canEditIndicator = (indicatorId) => {
     if (authStore.user?.role === "admin") return true;
     if (authStore.user?.role === "engineer") {
@@ -120,18 +124,45 @@ export const useDataStore = defineStore("data", () => {
     return false;
   };
 
-  // Получение значения для конкретной ячейки
+  // 👇 ИСПРАВЛЕННАЯ функция получения значения с учетом часового пояса
   function getValue(forestryId, indicatorId, period = currentPeriod.value) {
-    const item = rawData.value.find(
-      (r) =>
+    const [year, month] = period.split("-").map(Number);
+
+    console.log(
+      `🔍 getValue: ищем forestry=${forestryId}, indicator=${indicatorId}, за период ${year}-${month}`,
+    );
+
+    const item = rawData.value.find((r) => {
+      if (!r.period) return false;
+
+      // Парсим дату из UTC
+      const date = new Date(r.period);
+
+      // Получаем компоненты даты в локальном времени (с учетом часового пояса)
+      // Добавляем 5 часов (UTC+5) к UTC времени, чтобы получить локальную дату
+      const localDate = new Date(date.getTime() + 5 * 60 * 60 * 1000);
+
+      const itemYear = localDate.getFullYear();
+      const itemMonth = localDate.getMonth() + 1;
+
+      console.log(
+        `   запись: forestry=${r.forestry_id}, indicator=${r.indicator_id}, period=${r.period}, локальная дата=${itemYear}-${itemMonth}, значение=${r.value}`,
+      );
+
+      return (
         r.forestry_id === forestryId &&
         r.indicator_id === indicatorId &&
-        r.period?.startsWith(period),
-    );
-    return item?.value || 0;
+        itemYear === year &&
+        itemMonth === month
+      );
+    });
+
+    const value = item?.value;
+    console.log(`   результат:`, value !== undefined ? Number(value) : 0);
+
+    return value !== undefined ? Number(value) : 0;
   }
 
-  // Получение баллов для конкретной ячейки
   // Получение баллов для конкретной ячейки
   function getScore(forestryId, indicatorId, period = currentPeriod.value) {
     const cacheKey = `${forestryId}-${indicatorId}-${period}`;
@@ -147,21 +178,26 @@ export const useDataStore = defineStore("data", () => {
 
     let score = 0;
 
-    // 👇 НОВАЯ ЛОГИКА: объединяем бонус/штраф в один тип
     if (indicator.type === "manual") {
-      // Бонус/Штраф: берем значение как есть (может быть +5 или -3)
       score = value;
     } else {
-      // Обычный: расчет по формуле относительно лидера
-      const maxValue = Math.max(
-        0,
-        ...rawData.value
-          .filter(
-            (r) =>
-              r.indicator_id === indicatorId && r.period?.startsWith(period),
-          )
-          .map((r) => r.value),
-      );
+      // Для обычных показателей нужно фильтровать данные за тот же период
+      const [year, month] = period.split("-").map(Number);
+
+      const periodValues = rawData.value
+        .filter((r) => {
+          if (!r.period || r.indicator_id !== indicatorId) return false;
+
+          const date = new Date(r.period);
+          const localDate = new Date(date.getTime() + 5 * 60 * 60 * 1000);
+          const itemYear = localDate.getFullYear();
+          const itemMonth = localDate.getMonth() + 1;
+
+          return itemYear === year && itemMonth === month;
+        })
+        .map((r) => Number(r.value) || 0);
+
+      const maxValue = Math.max(0, ...periodValues);
 
       if (maxValue > 0) {
         score = (value / maxValue) * indicator.max_weight;
@@ -176,21 +212,24 @@ export const useDataStore = defineStore("data", () => {
 
   // Итоговый балл для лесничества
   function getTotalScore(forestryId, period = currentPeriod.value) {
-    let total = 0;
-    indicators.value.forEach((indicator) => {
-      total += getScore(forestryId, indicator.id, period);
-    });
-    return total.toFixed(2);
+    try {
+      let total = 0;
+      indicators.value.forEach((indicator) => {
+        total += getScore(forestryId, indicator.id, period);
+      });
+      return total.toFixed(2);
+    } catch (error) {
+      console.error("Ошибка расчета итога:", error);
+      return "0.00";
+    }
   }
 
-  // Цвет для отображения
   function getScoreClass(score) {
     if (score < 0) return "penalty";
     if (score > 0) return "positive";
     return "neutral";
   }
 
-  // Очищаем кэш при изменении данных
   watch(
     rawData,
     () => {
@@ -199,7 +238,7 @@ export const useDataStore = defineStore("data", () => {
     { deep: true },
   );
 
-  // Сохранение значения
+  // 👇 ИСПРАВЛЕННАЯ функция сохранения
   async function saveValue(
     forestryId,
     indicatorId,
@@ -207,33 +246,63 @@ export const useDataStore = defineStore("data", () => {
     period = currentPeriod.value,
   ) {
     try {
-      await api.saveRawData({
-        forestry_id: forestryId,
-        indicator_id: indicatorId,
+      const [year, month] = period.split("-").map(Number);
+
+      // Создаем дату на первый день месяца в UTC+5
+      // Чтобы в БД сохранилось как последний день предыдущего месяца в UTC
+      const localDate = new Date(year, month - 1, 1, 12, 0, 0);
+      const periodDate = new Date(localDate.getTime() - 5 * 60 * 60 * 1000);
+
+      console.log("💾 Сохраняем:", {
+        forestryId,
+        indicatorId,
         value,
         period,
+        localDate: localDate.toISOString(),
+        periodDate: periodDate.toISOString(),
       });
 
-      const fullPeriod = `${period}-01`;
+      const response = await api.saveRawData({
+        forestry_id: forestryId,
+        indicator_id: indicatorId,
+        value: Number(value),
+        period: periodDate.toISOString(),
+      });
 
-      const existingIndex = rawData.value.findIndex(
-        (r) =>
+      console.log("✅ Ответ сервера:", response);
+
+      // Обновляем локальный кэш
+      const existingIndex = rawData.value.findIndex((r) => {
+        if (!r.period) return false;
+
+        const date = new Date(r.period);
+        const localDate = new Date(date.getTime() + 5 * 60 * 60 * 1000);
+        const itemYear = localDate.getFullYear();
+        const itemMonth = localDate.getMonth() + 1;
+
+        return (
           r.forestry_id === forestryId &&
           r.indicator_id === indicatorId &&
-          r.period === fullPeriod,
-      );
+          itemYear === year &&
+          itemMonth === month
+        );
+      });
 
       if (existingIndex >= 0) {
-        rawData.value[existingIndex].value = value;
+        rawData.value[existingIndex].value = Number(value);
         rawData.value[existingIndex].updated_at = new Date().toISOString();
+        if (response?.id) {
+          rawData.value[existingIndex].id = response.id;
+        }
       } else {
         rawData.value.push({
-          id: Date.now(),
+          id: response?.id || Date.now(),
           forestry_id: forestryId,
           indicator_id: indicatorId,
-          value: value,
-          period: fullPeriod,
+          value: Number(value),
+          period: periodDate.toISOString(),
           created_by: authStore.user?.id,
+          updated_at: new Date().toISOString(),
         });
       }
 
@@ -242,22 +311,29 @@ export const useDataStore = defineStore("data", () => {
           scoreCache.value.delete(key);
         }
       }
+
+      dataLoaded.value = true;
     } catch (error) {
-      console.error("Ошибка сохранения:", error);
+      console.error("❌ Ошибка сохранения:", error);
       throw error;
     }
   }
 
-  // 👇 НЕ ЗАБЫТЬ ДОБАВИТЬ В RETURN
+  function setPeriod(period) {
+    currentPeriod.value = period;
+    dataLoaded.value = false;
+  }
+
   return {
     forestries,
     sections,
     indicators,
     rawData,
     responsible,
-    users, // <-- добавить
+    users,
     loading,
     currentPeriod,
+    dataLoaded,
     getIndicatorsBySection,
     canEditIndicator,
     isUserResponsibleForIndicator,
@@ -267,9 +343,10 @@ export const useDataStore = defineStore("data", () => {
     getScoreClass,
     loadAllData,
     saveValue,
-    fetchUsers, // <-- добавить
-    createUser, // <-- добавить
-    updateUser, // <-- добавить
-    deleteUser, // <-- добавить
+    fetchUsers,
+    createUser,
+    updateUser,
+    deleteUser,
+    setPeriod,
   };
 });
