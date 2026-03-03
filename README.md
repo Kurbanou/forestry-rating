@@ -85,6 +85,7 @@ cat backup.sql | docker exec -i forestry-db psql -U admin -d forestry_rating
 
 # Direct PostgreSQL access
 
+```bash
 docker exec -it forestry-db psql -U admin -d forestry_rating
 📁 Project Structure
 text
@@ -103,6 +104,7 @@ forestry-rating/
 └── README.md
 🔒 Environment Variables
 Create a .env file in the frontend directory:
+```
 
 env
 VITE_SUPABASE_URL=your_supabase_url
