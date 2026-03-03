@@ -1,92 +1,160 @@
-# 🌲 Система рейтинга лесничеств
+# 🌲 Forestry Rating System
 
-Система для учета и рейтингования лесничеств по различным показателям с автоматическим расчетом баллов, поддержкой штрафов и бонусов, разграничением прав доступа.
+A comprehensive system for managing and rating forestries based on various performance indicators with automatic score calculation, penalty and bonus systems, and role-based access control.
 
-## 🚀 Технологии
+## 🚀 Technology Stack
 
 - **Frontend**: Vue 3, Pinia, Vite
-- **Backend**: Node.js, Express
-- **Database**: PostgreSQL
-- **Container**: Docker
-- **Authentication**: JWT
+- **Backend**: Node.js, Express, PostgreSQL
+- **Authentication**: JWT, Supabase
+- **Hosting**: Vercel, Supabase
 
-## 📋 Функциональность
+## 📋 Key Features
 
-### Роли пользователей
+### 👥 User Roles
 
-- **Администратор** - полный доступ к управлению системой
-- **Инженер** - ввод данных по назначенным показателям
-- **Наблюдатель** - просмотр данных без редактирования
+- **Administrator** - Full system access and management
+- **Engineer** - Data entry for assigned indicators
+- **Viewer** - Read-only access to all data
 
-### Возможности
+### ⚙️ Core Functionalities
 
-- ✅ Авторизация и разграничение прав доступа
-- ✅ Управление разделами и показателями
-- ✅ Три типа показателей:
-  - 📊 Обычные (расчет по формуле)
-  - ⚠️ Штрафные (вычитают баллы)
-  - 🎁 Бонусные (добавляют баллы)
-- ✅ Назначение ответственных инженеров за показатели
-- ✅ Ввод данных по лесничествам за периоды
-- ✅ Автоматический расчет рейтинговых баллов
-- ✅ Управление пользователями и лесничествами
-- ✅ Статистика за выбранные периоды
+- ✅ **Authentication & Authorization** - Secure JWT-based access control
+- ✅ **Indicator Management** - Three types available:
+  - 📊 **Regular** - Formula-based score calculation
+  - ⚠️ **Penalty** - Subtracts points from total
+  - 🎁 **Bonus** - Adds points to total
+- ✅ **Responsible Assignment** - Assign engineers to specific indicators
+- ✅ **Period-based Data Entry** - Monthly data input for forestries
+- ✅ **Automatic Score Calculation** - Real-time rating computation
+- ✅ **User & Forestry Management** - Full CRUD operations
+- ✅ **Statistics Dashboard** - Quarterly comparisons and trend analysis
 
-## 🛠 Установка и запуск
+## 🛠 Installation & Setup
 
-### Требования
+### Prerequisites
 
-- **Docker** (для базы данных)
-- **Node.js 18+** и npm
+- **Docker** (for local PostgreSQL)
+- **Node.js 18+** and npm
 - **Git**
 
-### Пошаговая инструкция
+### Local Development Setup
 
 ```bash
-# 1. Клонировать репозиторий
-git clone https://github.com/ВАШ_АККАУНТ/forestry-rating.git
+# Clone repository
+git clone https://github.com/YOUR_USERNAME/forestry-rating.git
 cd forestry-rating
 
-# 2. Запустить базу данных PostgreSQL
+# Start PostgreSQL database
 docker compose up -d
-docker ps  # Проверить, что контейнер forestry-db запущен
 
-# 3. Запустить бэкенд
+# Set up backend
 cd backend
 npm install
 npm run dev
-# Сервер будет доступен на http://localhost:3000
+# API available at http://localhost:3000
 
-# 4. Запустить фронтенд (в новом терминале)
+# Set up frontend (new terminal)
 cd frontend
 npm install
 npm run dev
-# Приложение будет доступно на http://localhost:5173
+# App available at http://localhost:5173
 
-```
+🌐 Production Deployment
+The project is deployed using modern cloud services:
 
-## Работа с базой данных
+Frontend: Vercel - Automatic deploys from GitHub
 
-```bash
-# Создать резервную копию
+Database & Auth: Supabase - PostgreSQL with built-in authentication
 
+Live Demo
+text
+https://forestry-rating.vercel.app
+Test Credentials
+Role	Email	Password
+👑 Administrator	admin@skidles.by	admin123
+👷 Engineer	engineer@skidles.by	pass123
+📊 Database Management
+Backup & Restore
+bash
+# Create backup
 docker exec -t forestry-db pg_dump -U admin forestry_rating > backup_$(date +%Y%m%d).sql
 
-# Восстановить из резервной копии
-
+# Restore from backup
 docker exec -i forestry-db psql -U admin -d forestry_rating -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
 cat backup.sql | docker exec -i forestry-db psql -U admin -d forestry_rating
 
-# Подключиться к PostgreSQL напрямую
-
+# Direct PostgreSQL access
 docker exec -it forestry-db psql -U admin -d forestry_rating
+📁 Project Structure
+text
+forestry-rating/
+├── backend/           # Express.js server
+│   ├── server.js
+│   └── package.json
+├── frontend/          # Vue 3 application
+│   ├── src/
+│   │   ├── components/
+│   │   ├── stores/
+│   │   ├── lib/
+│   │   └── App.vue
+│   └── package.json
+├── docker-compose.yml
+└── README.md
+🔒 Environment Variables
+Create a .env file in the frontend directory:
 
-# Создать администратора вручную (если нет пользователей)
+env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+🎯 Key Implementation Features
+Real-time Updates - Instant data synchronization
 
-docker exec -it forestry-db psql -U admin -d forestry_rating -c "INSERT INTO users (email, password, role) VALUES ('admin@les.ru', 'admin123', 'admin');"
+Role-based Access - Granular permissions system
 
-# Полный сброс базы данных
+Responsive Design - Mobile-friendly interface
 
-docker compose down -v
-docker compose up -d
+Optimized Performance - Caching and lazy loading
+
+Comprehensive Statistics - Quarterly and trend analysis
+
+📈 Statistics Module
+Quarterly Comparison - Bar charts comparing forestries
+
+Trend Analysis - Line charts showing monthly dynamics
+
+Leaderboards - Top and bottom performers
+
+Detailed Tables - Monthly breakdown of all indicators
+
+👨‍💻 Development
+Tech Stack Details
+State Management: Pinia
+
+Styling: Scoped CSS
+
+Charts: Chart.js with vue-chartjs
+
+API Client: Supabase JavaScript client
+
+Build Tool: Vite
+
+Contributing
+Fork the repository
+
+Create your feature branch (git checkout -b feature/AmazingFeature)
+
+Commit changes (git commit -m 'Add AmazingFeature')
+
+Push to branch (git push origin feature/AmazingFeature)
+
+Open a Pull Request
+
+📝 License
+This project is created for educational purposes. Free to use and modify.
+
+🤝 Support
+For issues and questions, please open an issue on GitHub or contact the development team.
+
+Made with ❤️ for forest management 🌳
 ```
