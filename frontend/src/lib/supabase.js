@@ -177,17 +177,43 @@ export const api = {
   },
 
   // ============ Пользователи (USERS) ============
+  // ============ Пользователи (USERS) ============
   getUsers: async () => {
-    const { data, error } = await supabase
-      .from("user_profiles")
-      .select("*")
-      .order("email");
+    try {
+      // Пробуем получить через обычный запрос
+      const { data, error } = await supabase
+        .from("user_profiles")
+        .select("*")
+        .order("email");
 
-    if (error) {
-      console.error("Ошибка загрузки пользователей:", error);
-      throw error;
+      if (error) {
+        console.warn(
+          "⚠️ Не удалось получить user_profiles, пробуем альтернативный метод",
+        );
+
+        // Альтернатива: получаем из auth.users (если есть права)
+        const { data: authData, error: authError } =
+          await supabase.auth.admin.listUsers();
+
+        if (authError) {
+          console.error("❌ Ошибка получения пользователей:", authError);
+          return [];
+        }
+
+        // Преобразуем данные auth.users в нужный формат
+        return authData.users.map((user) => ({
+          id: user.id,
+          email: user.email,
+          role: user.user_metadata?.role || "viewer",
+          created_at: user.created_at,
+        }));
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error("❌ Критическая ошибка получения пользователей:", error);
+      return [];
     }
-    return data || [];
   },
 
   createUser: async (userData) => {
