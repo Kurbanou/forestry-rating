@@ -7,10 +7,3 @@ const app = createApp(App);
 const pinia = createPinia();
 app.use(pinia);
 app.mount("#app");
-
-// Для отладки
-window.api = api;
-
-// В main.js добавь эти строки
-window.authStore = useAuthStore();
-window.dataStore = useDataStore();

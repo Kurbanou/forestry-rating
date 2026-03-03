@@ -279,18 +279,3 @@ export const useDataStore = defineStore("data", () => {
     setPeriod,
   };
 });
-
-// Добавь эту строку после return
-if (typeof window !== "undefined") {
-  window.__dataStore = {
-    responsible: responsible.value,
-    indicators: indicators.value.map((i) => ({ id: i.id, name: i.name })),
-  };
-
-  // Функция для проверки прав
-  window.__canEdit = (userId, indicatorId) => {
-    return responsible.value.some(
-      (r) => r.user_id === userId && r.indicator_id === indicatorId,
-    );
-  };
-}
