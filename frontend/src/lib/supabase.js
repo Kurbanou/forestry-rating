@@ -17,12 +17,27 @@ export const api = {
       password,
     });
     if (error) throw error;
+
+    // Получаем профиль пользователя из нашей таблицы
+    const { data: profile, error: profileError } = await supabase
+      .from("user_profiles")
+      .select("role")
+      .eq("id", data.user.id)
+      .single();
+
+    if (profileError) {
+      console.warn("⚠️ Не удалось получить профиль:", profileError);
+    }
+
+    // Используем роль из профиля, если есть, иначе из метаданных
+    const role = profile?.role || data.user.user_metadata?.role || "viewer";
+
     return {
       token: data.session.access_token,
       user: {
         id: data.user.id,
         email: data.user.email,
-        role: data.user.user_metadata?.role || "viewer",
+        role: role, // ← теперь берем из user_profiles
       },
     };
   },
@@ -36,7 +51,24 @@ export const api = {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    return user;
+    if (!user) return null;
+
+    // Получаем профиль пользователя
+    const { data: profile, error: profileError } = await supabase
+      .from("user_profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError) {
+      console.warn("⚠️ Не удалось получить профиль:", profileError);
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+      role: profile?.role || user.user_metadata?.role || "viewer",
+    };
   },
 
   // ============ Лесничества (FORESTRIES) ============
