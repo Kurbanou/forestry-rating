@@ -30,7 +30,7 @@ export const api = {
     }
 
     // Используем роль из профиля, если есть, иначе из метаданных
-    const role = profile?.role || data.user.user_metadata?.role || "viewer";
+    // const role = profile?.role || data.user.user_metadata?.role || "viewer";
 
     return {
       token: data.session.access_token,
@@ -67,7 +67,7 @@ export const api = {
     return {
       id: user.id,
       email: user.email,
-      role: profile?.role || user.user_metadata?.role || "viewer",
+      // role: profile?.role || user.user_metadata?.role || "viewer",
     };
   },
 
