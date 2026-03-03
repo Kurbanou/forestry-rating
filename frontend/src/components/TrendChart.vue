@@ -31,11 +31,18 @@
       <canvas ref="trendChart"></canvas>
     </div>
 
-    <!-- Легенда -->
+    <!-- Легенда - правильный вариант -->
     <div class="chart-legend" v-if="selectedForestry === 'all'">
-      <div v-for="(color, index) in colors" :key="index" class="legend-item">
-        <span class="color-box" :style="{ backgroundColor: color }"></span>
-        <span>{{ forestries[index]?.name || "" }}</span>
+      <div
+        v-for="(forestry, index) in forestries"
+        :key="forestry.id"
+        class="legend-item"
+      >
+        <span
+          class="color-box"
+          :style="{ backgroundColor: colors[index % colors.length] }"
+        ></span>
+        <span>{{ forestry.name }}</span>
       </div>
     </div>
 
@@ -256,15 +263,16 @@ const updateChart = () => {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: selectedForestry.value === "all",
-          position: "top",
+          display: false,
+          // display: selectedForestry.value === "all",
+          // position: "top",
         },
-        tooltip: {
-          callbacks: {
-            label: (context) =>
-              `${context.dataset.label}: ${context.raw.toFixed(2)} баллов`,
-          },
-        },
+        // tooltip: {
+        //   callbacks: {
+        //     label: (context) =>
+        //       `${context.dataset.label}: ${context.raw.toFixed(2)} баллов`,
+        //   },
+        // },
       },
       scales: {
         y: {
