@@ -177,91 +177,83 @@ export const api = {
   },
 
   // ============ Пользователи (USERS) ============
-  // ============ Пользователи (USERS) ============
+  /// ============ Пользователи (USERS) ============
   getUsers: async () => {
     try {
-      // Пробуем получить через обычный запрос
+      // Простой запрос к user_profiles
       const { data, error } = await supabase
         .from("user_profiles")
         .select("*")
         .order("email");
 
       if (error) {
-        console.warn(
-          "⚠️ Не удалось получить user_profiles, пробуем альтернативный метод",
-        );
-
-        // Альтернатива: получаем из auth.users (если есть права)
-        const { data: authData, error: authError } =
-          await supabase.auth.admin.listUsers();
-
-        if (authError) {
-          console.error("❌ Ошибка получения пользователей:", authError);
-          return [];
-        }
-
-        // Преобразуем данные auth.users в нужный формат
-        return authData.users.map((user) => ({
-          id: user.id,
-          email: user.email,
-          role: user.user_metadata?.role || "viewer",
-          created_at: user.created_at,
-        }));
+        console.error("Ошибка Supabase:", error);
+        throw error;
       }
 
+      console.log("✅ Загружено пользователей:", data?.length);
       return data || [];
     } catch (error) {
-      console.error("❌ Критическая ошибка получения пользователей:", error);
+      console.error("❌ Ошибка получения пользователей:", error);
       return [];
     }
   },
 
   createUser: async (userData) => {
-    // Создаем пользователя в auth
-    const { data: authData, error: authError } =
-      await supabase.auth.admin.createUser({
-        email: userData.email,
-        password: userData.password,
-        email_confirm: true,
-        user_metadata: { role: userData.role },
-      });
-    if (authError) throw authError;
+    try {
+      // Сначала создаем пользователя в auth
+      const { data: authData, error: authError } =
+        await supabase.auth.admin.createUser({
+          email: userData.email,
+          password: userData.password,
+          email_confirm: true,
+          user_metadata: { role: userData.role },
+        });
 
-    return {
-      id: authData.user.id,
-      email: authData.user.email,
-      role: userData.role,
-    };
+      if (authError) throw authError;
+
+      // Профиль создастся автоматически через триггер
+      return {
+        id: authData.user.id,
+        email: authData.user.email,
+        role: userData.role,
+      };
+    } catch (error) {
+      console.error("❌ Ошибка создания пользователя:", error);
+      throw error;
+    }
   },
 
   updateUser: async (id, userData) => {
-    // Обновляем метаданные пользователя
-    const { data: authData, error: authError } =
-      await supabase.auth.admin.updateUserById(id, {
-        email: userData.email,
-        user_metadata: { role: userData.role },
-      });
-    if (authError) throw authError;
+    try {
+      // Обновляем профиль
+      const { data, error } = await supabase
+        .from("user_profiles")
+        .update({
+          email: userData.email,
+          role: userData.role,
+        })
+        .eq("id", id)
+        .select();
 
-    // Обновляем профиль
-    const { data: profileData, error: profileError } = await supabase
-      .from("user_profiles")
-      .update({
-        email: userData.email,
-        role: userData.role,
-      })
-      .eq("id", id)
-      .select();
-
-    if (profileError) throw profileError;
-
-    return profileData[0];
+      if (error) throw error;
+      return data[0];
+    } catch (error) {
+      console.error("❌ Ошибка обновления пользователя:", error);
+      throw error;
+    }
   },
 
   deleteUser: async (id) => {
-    const { error } = await supabase.auth.admin.deleteUser(id);
-    if (error) throw error;
-    return true;
+    try {
+      // Удаляем через admin API
+      const { error } = await supabase.auth.admin.deleteUser(id);
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error("❌ Ошибка удаления пользователя:", error);
+      throw error;
+    }
   },
 
   // ============ Инженеры ============

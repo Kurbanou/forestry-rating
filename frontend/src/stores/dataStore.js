@@ -51,7 +51,7 @@ export const useDataStore = defineStore("data", () => {
       console.log("✅ Загружено пользователей:", users.value.length);
       return users.value;
     } catch (error) {
-      console.error("Ошибка загрузки пользователей:", error);
+      console.error("❌ Ошибка загрузки пользователей:", error);
       users.value = [];
       return [];
     }
