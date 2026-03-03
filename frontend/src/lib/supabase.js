@@ -268,23 +268,74 @@ export const api = {
   },
 
   // ============ Ответственные за показатели ============
+  // ============ Ответственные за показатели ============
   getIndicatorResponsible: async (indicatorId) => {
-    const { data, error } = await supabase
-      .from("indicator_responsible")
-      .select("*, user_profiles!user_id(email, role)")
-      .eq("indicator_id", indicatorId);
+    try {
+      // Простой запрос без JOIN, получим данные и потом отдельно пользователей
+      const { data, error } = await supabase
+        .from("indicator_responsible")
+        .select("*")
+        .eq("indicator_id", indicatorId);
 
-    if (error) throw error;
-    return data;
+      if (error) throw error;
+
+      // Если есть данные, получим информацию о пользователях
+      if (data && data.length > 0) {
+        const userIds = data.map((item) => item.user_id);
+        const { data: users, error: usersError } = await supabase
+          .from("user_profiles")
+          .select("id, email, role")
+          .in("id", userIds);
+
+        if (usersError) throw usersError;
+
+        // Объединяем данные
+        return data.map((item) => ({
+          ...item,
+          user_email: users.find((u) => u.id === item.user_id)?.email,
+          user_role: users.find((u) => u.id === item.user_id)?.role,
+        }));
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error("Ошибка получения ответственных:", error);
+      return [];
+    }
   },
 
+  // Метод для получения всех ответственных
   getAllResponsible: async () => {
-    const { data, error } = await supabase
-      .from("indicator_responsible")
-      .select("*, user_profiles!user_id(email, role), indicators(name)");
+    try {
+      const { data, error } = await supabase
+        .from("indicator_responsible")
+        .select("*");
 
-    if (error) throw error;
-    return data;
+      if (error) throw error;
+
+      // Если есть данные, получим информацию о пользователях
+      if (data && data.length > 0) {
+        const userIds = [...new Set(data.map((item) => item.user_id))];
+        const { data: users, error: usersError } = await supabase
+          .from("user_profiles")
+          .select("id, email, role")
+          .in("id", userIds);
+
+        if (usersError) throw usersError;
+
+        // Объединяем данные
+        return data.map((item) => ({
+          ...item,
+          user_email: users.find((u) => u.id === item.user_id)?.email,
+          user_role: users.find((u) => u.id === item.user_id)?.role,
+        }));
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error("Ошибка получения всех ответственных:", error);
+      return [];
+    }
   },
 
   addResponsible: async (indicatorId, userId) => {

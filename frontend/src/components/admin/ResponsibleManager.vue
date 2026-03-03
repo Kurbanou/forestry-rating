@@ -72,36 +72,17 @@ const clearAllData = () => {
   selectedUser.value = "";
 };
 
-// Загружаем данные
+// В ResponsibleManager.vue должно быть:
 const loadData = async () => {
-  if (!props.indicatorId) {
-    clearAllData();
-    return;
-  }
-
-  loading.value = true;
   try {
-    const [respData, engData] = await Promise.all([
-      api.getIndicatorResponsible(props.indicatorId),
-      api.getEngineers(),
-    ]);
+    const respData = await api.getIndicatorResponsible(props.indicatorId);
+    const engData = await api.getEngineers();
 
-    // Преобразуем данные в единый формат
-    const formattedResponsible = (respData || []).map((item) => ({
-      id: item.id,
-      user_id: item.user_id,
-      email: item.user_email || item.email,
-      role: item.role,
-      indicator_id: item.indicator_id,
-    }));
-
-    responsible.value = formattedResponsible;
+    console.log("📦 Данные ответственных:", respData);
+    responsible.value = respData || [];
     engineers.value = engData || [];
   } catch (error) {
-    console.error("Ошибка загрузки данных:", error);
-    clearAllData();
-  } finally {
-    loading.value = false;
+    console.error("Ошибка загрузки:", error);
   }
 };
 
