@@ -45,8 +45,16 @@ export const useDataStore = defineStore("data", () => {
 
   // Методы для пользователей (временно отключаем, пока не настроим в Supabase)
   async function fetchUsers() {
-    console.warn("⚠️ fetchUsers временно не доступен");
-    return [];
+    try {
+      const data = await api.getUsers();
+      users.value = data || [];
+      console.log("✅ Загружено пользователей:", users.value.length);
+      return users.value;
+    } catch (error) {
+      console.error("Ошибка загрузки пользователей:", error);
+      users.value = [];
+      return [];
+    }
   }
 
   async function createUser(userData) {

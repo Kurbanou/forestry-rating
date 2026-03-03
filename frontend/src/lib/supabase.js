@@ -182,8 +182,12 @@ export const api = {
       .from("user_profiles")
       .select("*")
       .order("email");
-    if (error) throw error;
-    return data;
+
+    if (error) {
+      console.error("Ошибка загрузки пользователей:", error);
+      throw error;
+    }
+    return data || [];
   },
 
   createUser: async (userData) => {
