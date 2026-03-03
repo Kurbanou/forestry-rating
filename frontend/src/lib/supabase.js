@@ -339,33 +339,44 @@ export const api = {
   // Метод для получения всех ответственных
   getAllResponsible: async () => {
     try {
-      const { data, error } = await supabase
-        .from("indicator_responsible")
-        .select("*");
+      console.log("📥 Загружаем всех ответственных...");
 
-      if (error) throw error;
+      const { data, error } = await supabase.from("indicator_responsible")
+        .select(`
+        *,
+        user_profiles!user_id ( email, role ),
+        indicators ( name )
+      `);
 
-      // Если есть данные, получим информацию о пользователях
-      if (data && data.length > 0) {
-        const userIds = [...new Set(data.map((item) => item.user_id))];
-        const { data: users, error: usersError } = await supabase
-          .from("user_profiles")
-          .select("id, email, role")
-          .in("id", userIds);
-
-        if (usersError) throw usersError;
-
-        // Объединяем данные
-        return data.map((item) => ({
-          ...item,
-          user_email: users.find((u) => u.id === item.user_id)?.email,
-          user_role: users.find((u) => u.id === item.user_id)?.role,
-        }));
+      if (error) {
+        console.error("❌ Ошибка загрузки ответственных:", error);
+        throw error;
       }
 
-      return data || [];
+      console.log("✅ Сырые данные из БД:", data);
+
+      // Преобразуем в удобный формат
+      const formatted = (data || []).map((item) => ({
+        id: item.id,
+        indicator_id: item.indicator_id,
+        indicator_name: item.indicators?.name,
+        user_id: item.user_id,
+        user_email: item.user_profiles?.email,
+        user_role: item.user_profiles?.role,
+        assigned_at: item.assigned_at,
+      }));
+
+      console.log("📦 Отформатированные данные:", formatted);
+      console.log(
+        "👤 Для пользователя nach (id: 6d5025d2-9036-4c42-affe-08fe144b0147):",
+        formatted.filter(
+          (f) => f.user_id === "6d5025d2-9036-4c42-affe-08fe144b0147",
+        ),
+      );
+
+      return formatted;
     } catch (error) {
-      console.error("Ошибка получения всех ответственных:", error);
+      console.error("❌ Ошибка получения всех ответственных:", error);
       return [];
     }
   },

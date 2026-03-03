@@ -22,20 +22,41 @@ export const useDataStore = defineStore("data", () => {
   async function loadAllData() {
     loading.value = true;
     try {
-      const [forestriesData, sectionsData, indicatorsData, rawDataData] =
-        await Promise.all([
-          api.getForestries(),
-          api.getSections(),
-          api.getIndicators(),
-          api.getAllRawData(), // Загружаем все данные
-        ]);
+      console.log("📥 Начинаем загрузку всех данных...");
+
+      const [
+        forestriesData,
+        sectionsData,
+        indicatorsData,
+        rawDataData,
+        responsibleData,
+      ] = await Promise.all([
+        api.getForestries(),
+        api.getSections(),
+        api.getIndicators(),
+        api.getAllRawData(),
+        api.getAllResponsible(),
+      ]);
 
       forestries.value = forestriesData || [];
       sections.value = sectionsData || [];
       indicators.value = indicatorsData || [];
       rawData.value = rawDataData || [];
+      responsible.value = responsibleData || [];
 
-      console.log("✅ Загружено записей rawData:", rawDataData?.length || 0);
+      console.log("✅ Загружено:");
+      console.log("   - Лесничеств:", forestries.value.length);
+      console.log("   - Разделов:", sections.value.length);
+      console.log("   - Показателей:", indicators.value.length);
+      console.log("   - Данных:", rawData.value.length);
+      console.log("   - Ответственных:", responsible.value.length);
+
+      // Специально для nach
+      const nachId = "6d5025d2-9036-4c42-affe-08fe144b0147";
+      const nachAssignments = responsible.value.filter(
+        (r) => r.user_id === nachId,
+      );
+      console.log("👤 Назначения для nach@skidles.by:", nachAssignments);
     } catch (error) {
       console.error("Ошибка загрузки данных:", error);
     } finally {
