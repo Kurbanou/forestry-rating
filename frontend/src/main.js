@@ -10,3 +10,7 @@ app.mount("#app");
 
 // Для отладки
 window.api = api;
+
+// В main.js добавь эти строки
+window.authStore = useAuthStore();
+window.dataStore = useDataStore();
