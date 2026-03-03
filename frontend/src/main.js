@@ -1,13 +1,12 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 import App from "./App.vue";
-import { useAuthStore } from "./stores/authStore";
+import { api } from "./lib/supabase"; // ← ВАЖНО: импорт из supabase, а не из api.js
 
 const app = createApp(App);
 const pinia = createPinia();
 app.use(pinia);
 app.mount("#app");
 
-// Сделаем store доступным в консоли для отладки
-window.authStore = useAuthStore();
-window.supabase = (await import("./lib/supabase")).supabase;
+// Для отладки
+window.api = api;
