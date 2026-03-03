@@ -1,17 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
-// Определяем переменные в зависимости от среды
-let supabaseUrl, supabaseAnonKey;
-
-if (typeof import.meta !== "undefined" && import.meta.env) {
-  // Для Vite (браузер)
-  supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-} else {
-  // Для Node.js (тесты) - используем прямые значения
-  supabaseUrl = "https://uckflpnuhycfjcvcppon.supabase.co";
-  supabaseAnonKey = "sb_publishable_20ES7Yy1aTo_TiuVWFqNpg_A_axZF57";
-}
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error("❌ Ошибка: Не найдены переменные окружения для Supabase");
@@ -19,7 +9,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// API методы для работы с данными
+// API методы для работы с данными через Supabase (НЕ через localhost!)
 export const api = {
   // Аутентификация
   login: async (email, password) => {
@@ -30,7 +20,11 @@ export const api = {
     if (error) throw error;
     return {
       token: data.session.access_token,
-      user: data.user,
+      user: {
+        id: data.user.id,
+        email: data.user.email,
+        role: data.user.user_metadata?.role || "viewer",
+      },
     };
   },
 
@@ -81,11 +75,20 @@ export const api = {
   getRawData: async (period) => {
     let query = supabase.from("raw_data").select("*");
 
-    if (period) {
+    if (period && period !== "all") {
       query = query.ilike("period", `${period}%`);
     }
 
     const { data, error } = await query.order("period");
+    if (error) throw error;
+    return data;
+  },
+
+  getAllRawData: async () => {
+    const { data, error } = await supabase
+      .from("raw_data")
+      .select("*")
+      .order("period");
     if (error) throw error;
     return data;
   },
@@ -143,11 +146,19 @@ export const api = {
     return true;
   },
 
-  // Инженеры (из auth.users)
+  // Инженеры (из public.users если есть, иначе пустой массив)
   getEngineers: async () => {
-    // В Supabase нельзя напрямую запросить auth.users из клиента
-    // Пока вернем пустой массив, позже добавим через Edge Functions
-    console.warn("⚠️ getEngineers временно не работает");
-    return [];
+    try {
+      const { data, error } = await supabase
+        .from("user_profiles")
+        .select("id, email")
+        .eq("role", "engineer");
+
+      if (error) throw error;
+      return data || [];
+    } catch (e) {
+      console.warn("⚠️ Не удалось получить инженеров:", e);
+      return [];
+    }
   },
 };
