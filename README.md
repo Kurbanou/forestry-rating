@@ -59,46 +59,46 @@ cd frontend
 npm install
 npm run dev
 # App available at http://localhost:5173
+```
 
-🌐 Production Deployment
+## 🌐 Production Deployment
+
 The project is deployed using modern cloud services:
 
-Frontend: Vercel - Automatic deploys from GitHub
+- **Frontend: Vercel - Automatic deploys from GitHub**
+- **Database & Auth: Supabase - PostgreSQL with built-in authentication**
 
-Database & Auth: Supabase - PostgreSQL with built-in authentication
+## Live Demo
 
-Live Demo
-text
+```bash
 https://forestry-rating.vercel.app
-Test Credentials
-Role	Email	Password
-👑 Administrator	admin@skidles.by	admin123
-👷 Engineer	engineer@skidles.by	pass123
-📊 Database Management
-Backup & Restore
-bash
+```
+
 # Create backup
-docker exec -t forestry-db pg_dump -U admin forestry_rating > backup_$(date +%Y%m%d).sql
+
+docker exec -t forestry-db pg*dump -U admin forestry_rating > backup*$(date +%Y%m%d).sql
 
 # Restore from backup
+
 docker exec -i forestry-db psql -U admin -d forestry_rating -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
 cat backup.sql | docker exec -i forestry-db psql -U admin -d forestry_rating
 
 # Direct PostgreSQL access
+
 docker exec -it forestry-db psql -U admin -d forestry_rating
 📁 Project Structure
 text
 forestry-rating/
-├── backend/           # Express.js server
-│   ├── server.js
-│   └── package.json
-├── frontend/          # Vue 3 application
-│   ├── src/
-│   │   ├── components/
-│   │   ├── stores/
-│   │   ├── lib/
-│   │   └── App.vue
-│   └── package.json
+├── backend/ # Express.js server
+│ ├── server.js
+│ └── package.json
+├── frontend/ # Vue 3 application
+│ ├── src/
+│ │ ├── components/
+│ │ ├── stores/
+│ │ ├── lib/
+│ │ └── App.vue
+│ └── package.json
 ├── docker-compose.yml
 └── README.md
 🔒 Environment Variables
@@ -157,4 +157,3 @@ This project is created for educational purposes. Free to use and modify.
 For issues and questions, please open an issue on GitHub or contact the development team.
 
 Made with ❤️ for forest management 🌳
-```
