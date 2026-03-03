@@ -36,11 +36,12 @@ export const useAuthStore = defineStore("auth", () => {
 
       if (error) throw error;
 
-      // Получаем роль из таблицы user_profiles
+      // ТОЛЬКО получаем роль, НЕ обновляем её
       const profileRole = await getUserRole(data.user.id);
 
-      // Если есть роль в profiles - используем её, иначе берем из метаданных
-      const userRole = profileRole || data.user.user_metadata?.role || "viewer";
+      // Если роль есть в profiles - используем её
+      // НИКОГДА не берем из metadata, потому что там может быть старое значение
+      const userRole = profileRole || "viewer";
 
       user.value = {
         id: data.user.id,
@@ -71,12 +72,10 @@ export const useAuthStore = defineStore("auth", () => {
       } = await supabase.auth.getUser();
 
       if (supabaseUser) {
-        // Получаем роль из таблицы user_profiles
+        // Только получаем роль, не обновляем
         const profileRole = await getUserRole(supabaseUser.id);
 
-        // Если есть роль в profiles - используем её, иначе из метаданных
-        const userRole =
-          profileRole || supabaseUser.user_metadata?.role || "viewer";
+        const userRole = profileRole || "viewer";
 
         user.value = {
           id: supabaseUser.id,
