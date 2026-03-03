@@ -98,7 +98,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { api } from "../../lib/api"; // ← ИСПОЛЬЗУЕМ API, НЕ SUPABASE
+import { api } from "../../lib/supabase"; // ← ИЗМЕНИТЬ!
 import Modal from "../UI/Modal.vue";
 import IndicatorForm from "./IndicatorForm.vue";
 

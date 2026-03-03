@@ -49,7 +49,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { api } from "../../lib/api";
+import { api } from "../../lib/supabase"; // ← ИЗМЕНИТЬ!
 
 const props = defineProps({
   indicatorId: {

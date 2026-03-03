@@ -64,7 +64,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { api } from "../../lib/api";
+import { api } from "../../lib/supabase"; // ← ИЗМЕНИТЬ!
 import Modal from "../UI/Modal.vue";
 import ForestryForm from "./ForestryForm.vue";
 

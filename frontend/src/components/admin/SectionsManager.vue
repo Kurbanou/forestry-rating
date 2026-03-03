@@ -49,7 +49,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { api } from "../../lib/api"; // ← вместо supabase
+import { api } from "../../lib/supabase"; // ← ИЗМЕНИТЬ!
 import Modal from "../UI/Modal.vue";
 import SectionForm from "./SectionForm.vue";
 
