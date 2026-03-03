@@ -1,12 +1,13 @@
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
+import { createApp } from "vue";
+import { createPinia } from "pinia";
+import App from "./App.vue";
+import { useAuthStore } from "./stores/authStore";
 
-import App from './App.vue'
-import router from './router'
+const app = createApp(App);
+const pinia = createPinia();
+app.use(pinia);
+app.mount("#app");
 
-const app = createApp(App)
-
-app.use(createPinia())
-app.use(router)
-
-app.mount('#app')
+// Сделаем store доступным в консоли для отладки
+window.authStore = useAuthStore();
+window.supabase = (await import("./lib/supabase")).supabase;
