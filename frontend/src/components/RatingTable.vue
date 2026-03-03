@@ -3,12 +3,7 @@
     <div class="table-header">
       <h2>Данные за {{ formatPeriod(currentPeriod) }}</h2>
       <div class="period-controls">
-        <input
-          type="month"
-          :value="currentPeriod"
-          @change="changePeriod"
-          class="period-input"
-        />
+        <CustomDatePicker v-model="currentPeriod" @change="changePeriod" />
       </div>
     </div>
 
@@ -186,6 +181,12 @@
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
 import { useDataStore } from "../stores/dataStore";
 import { useAuthStore } from "../stores/authStore";
+import CustomDatePicker from "./CustomDatePicker.vue";
+
+const changePeriod = (newPeriod) => {
+  console.log("Смена периода на:", newPeriod);
+  dataStore.setPeriod(newPeriod);
+};
 
 const dataStore = useDataStore();
 const authStore = useAuthStore();
@@ -386,19 +387,6 @@ const setInputRef = (el, forestryId, indicatorId) => {
   }
 };
 
-const changePeriod = async (event) => {
-  const newPeriod = event.target.value;
-  console.log("Смена периода на:", newPeriod);
-
-  // НЕ перезагружаем все данные, только меняем период в store
-  dataStore.setPeriod(newPeriod);
-
-  // Не вызываем loadAllData!
-  // await dataStore.loadAllData(true);
-
-  console.log("Период изменен");
-};
-
 const formatPeriod = (period) => {
   if (!period) return "";
   const [year, month] = period.split("-");
@@ -430,7 +418,7 @@ const formatPeriod = (period) => {
 
 .table-header {
   display: flex;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   align-items: center;
   margin-bottom: 20px;
   padding-bottom: 15px;
@@ -440,7 +428,9 @@ const formatPeriod = (period) => {
 .table-header h2 {
   margin: 0;
   color: #333;
-  font-size: 1.5rem;
+  font-size: 0.91rem;
+  text-transform: lowercase;
+  font-weight: 400;
 }
 
 .period-input {
@@ -674,7 +664,7 @@ th {
 .total-table th {
   background: #e0e0e0;
   padding: 12px;
-  /* text-align: center; */
+  text-align: center;
   font-size: 1em;
   color: black;
 }
@@ -709,14 +699,11 @@ th {
 }
 
 @media (max-width: 768px) {
+  table {
+    min-width: unset;
+  }
   .rating-table {
     padding: 10px;
-  }
-
-  .table-header {
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
   }
 
   .period-input {
