@@ -341,40 +341,65 @@ export const api = {
     try {
       console.log("📥 Загружаем всех ответственных...");
 
-      const { data, error } = await supabase.from("indicator_responsible")
-        .select(`
-        *,
-        user_profiles!user_id ( email, role ),
-        indicators ( name )
-      `);
+      // Сначала получаем все назначения
+      const { data: irData, error: irError } = await supabase
+        .from("indicator_responsible")
+        .select("*");
 
-      if (error) {
-        console.error("❌ Ошибка загрузки ответственных:", error);
-        throw error;
+      if (irError) throw irError;
+
+      console.log("✅ Назначения загружены:", irData?.length);
+
+      if (!irData || irData.length === 0) {
+        return [];
       }
 
-      console.log("✅ Сырые данные из БД:", data);
+      // Получаем ID всех пользователей и показателей
+      const userIds = [...new Set(irData.map((item) => item.user_id))];
+      const indicatorIds = [
+        ...new Set(irData.map((item) => item.indicator_id)),
+      ];
 
-      // Преобразуем в удобный формат
-      const formatted = (data || []).map((item) => ({
-        id: item.id,
-        indicator_id: item.indicator_id,
-        indicator_name: item.indicators?.name,
-        user_id: item.user_id,
-        user_email: item.user_profiles?.email,
-        user_role: item.user_profiles?.role,
-        assigned_at: item.assigned_at,
-      }));
+      // Загружаем пользователей
+      const { data: users, error: usersError } = await supabase
+        .from("user_profiles")
+        .select("id, email, role")
+        .in("id", userIds);
 
-      console.log("📦 Отформатированные данные:", formatted);
-      console.log(
-        "👤 Для пользователя nach (id: 6d5025d2-9036-4c42-affe-08fe144b0147):",
-        formatted.filter(
-          (f) => f.user_id === "6d5025d2-9036-4c42-affe-08fe144b0147",
-        ),
-      );
+      if (usersError) throw usersError;
 
-      return formatted;
+      // Загружаем показатели
+      const { data: indicators, error: indError } = await supabase
+        .from("indicators")
+        .select("id, name")
+        .in("id", indicatorIds);
+
+      if (indError) throw indError;
+
+      // Собираем всё вместе
+      const result = irData.map((item) => {
+        const user = users?.find((u) => u.id === item.user_id);
+        const indicator = indicators?.find((i) => i.id === item.indicator_id);
+
+        return {
+          id: item.id,
+          indicator_id: item.indicator_id,
+          indicator_name: indicator?.name || "Неизвестно",
+          user_id: item.user_id,
+          user_email: user?.email,
+          user_role: user?.role,
+          assigned_at: item.assigned_at,
+        };
+      });
+
+      console.log("📦 Итоговые данные:", result);
+
+      // Проверяем для nach
+      const nachId = "6d5025d2-9036-4c42-affe-08fe144b0147";
+      const nachData = result.filter((r) => r.user_id === nachId);
+      console.log("👤 Назначения для nach:", nachData);
+
+      return result;
     } catch (error) {
       console.error("❌ Ошибка получения всех ответственных:", error);
       return [];
