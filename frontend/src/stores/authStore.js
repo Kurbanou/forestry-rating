@@ -106,3 +106,11 @@ export const useAuthStore = defineStore("auth", () => {
     checkAuth,
   };
 });
+
+// Добавь эту строку после return
+if (typeof window !== "undefined") {
+  window.__authStore = {
+    user: user.value,
+    isAuthenticated: isAuthenticated.value,
+  };
+}
