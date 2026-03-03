@@ -159,7 +159,7 @@
 
     <!-- Итоговая таблица (только итого) -->
     <div class="total-section">
-      <h3>📊 Итоговые баллы по лесничествам</h3>
+      <h3>📊 Итоговые баллы</h3>
       <div class="table-container">
         <table class="total-table">
           <thead>
@@ -657,6 +657,7 @@ th {
 .total-section h3 {
   margin: 0 0 15px 0;
   color: #333;
+  text-align: center;
 }
 
 .total-table {
@@ -673,29 +674,33 @@ th {
 .total-table th {
   background: #e0e0e0;
   padding: 12px;
-  text-align: center;
-  font-size: 14px;
+  /* text-align: center; */
+  font-size: 1em;
+  color: black;
 }
 
 .total-table td {
+  color: #667;
   padding: 12px;
-  text-align: center;
+  /* text-align: center; */
   border: 1px solid #eee;
 }
 
 .forestry-name {
-  font-weight: 600;
+  font-weight: 400;
   background: #f5f5f5;
-  text-align: left;
+  /* text-align: left; */
+  font-size: 0.9rem;
 }
 
 .total-cell {
-  font-weight: 700;
-  font-size: 1.2rem;
+  font-weight: 200;
+  font-size: 0.9rem;
+  text-align: right;
 }
 
 .total-cell.positive {
-  color: #4caf50;
+  /* color: #4caf50; */
 }
 
 .total-cell.penalty {

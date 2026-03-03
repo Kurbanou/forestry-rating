@@ -121,6 +121,11 @@ header {
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+  row-gap: 10px;
+  text-align: center;
 }
 
 header h1 {
@@ -201,5 +206,11 @@ header h1 {
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+@media (max-width: 420px) {
+  header h1 {
+    font-size: 1em;
+  }
 }
 </style>
