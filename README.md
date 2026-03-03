@@ -59,6 +59,10 @@ cd frontend
 npm install
 npm run dev
 # App available at http://localhost:5173
+
+# Создать/обновить файл .env
+echo "VITE_SUPABASE_URL=https://uckflpnuhycfjcvcppon.supabase.co" > .env
+echo "VITE_SUPABASE_ANON_KEY=sb_publishable_20ES7Yy1aTo_TiuVWFqNpg_A_axZF57" >> .env
 ```
 
 ## 🌐 Production Deployment
