@@ -5,25 +5,33 @@
     <div class="controls">
       <div class="control-group">
         <label>Год:</label>
-        <select v-model="selectedYear" @change="updateChart">
-          <option v-for="year in availableYears" :key="year" :value="year">
+        <el-select
+          v-model="selectedYear"
+          @change="updateChart"
+          style="width: 80px"
+        >
+          <el-option v-for="year in availableYears" :key="year" :value="year">
             {{ year }}
-          </option>
-        </select>
+          </el-option>
+        </el-select>
       </div>
 
       <div class="control-group">
         <label>Показать:</label>
-        <select v-model="selectedForestry" @change="updateChart">
-          <option value="all">Все лесничества</option>
-          <option
+        <el-select
+          v-model="selectedForestry"
+          @change="updateChart"
+          style="width: 240px"
+          placeholder="Выберите лесничество"
+        >
+          <el-option value="all" label="Все лесничества" />
+          <el-option
             v-for="forestry in forestries"
             :key="forestry.id"
             :value="forestry.id"
-          >
-            {{ forestry.name }}
-          </option>
-        </select>
+            :label="forestry.name"
+          />
+        </el-select>
       </div>
     </div>
 

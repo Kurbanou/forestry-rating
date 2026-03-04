@@ -5,21 +5,29 @@
     <div class="controls">
       <div class="control-group">
         <label>Год:</label>
-        <select v-model="selectedYear" @change="updateChart">
-          <option v-for="year in availableYears" :key="year" :value="year">
+        <el-select
+          v-model="selectedYear"
+          @change="updateChart"
+          style="width: 80px"
+        >
+          <el-option v-for="year in availableYears" :key="year" :value="year">
             {{ year }}
-          </option>
-        </select>
+          </el-option>
+        </el-select>
       </div>
 
       <div class="control-group">
         <label>Квартал:</label>
-        <select v-model="selectedQuarter" @change="updateChart">
-          <option value="1">1 квартал (Янв-Март)</option>
-          <option value="2">2 квартал (Апр-Июнь)</option>
-          <option value="3">3 квартал (Июль-Сент)</option>
-          <option value="4">4 квартал (Окт-Дек)</option>
-        </select>
+        <el-select
+          v-model="selectedQuarter"
+          @change="updateChart"
+          style="width: 60px"
+        >
+          <el-option value="1"></el-option>
+          <el-option value="2"></el-option>
+          <el-option value="3"></el-option>
+          <el-option value="4"></el-option>
+        </el-select>
       </div>
     </div>
 
@@ -253,25 +261,6 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.control-group label {
-  font-weight: 500;
-  color: #555;
-}
-
-.control-group select {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  min-width: 120px;
-}
-
-.control-group select:focus {
-  outline: none;
-  border-color: #4caf50;
-  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
 }
 
 .chart-container {
