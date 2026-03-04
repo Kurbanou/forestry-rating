@@ -168,11 +168,13 @@ header h1 {
 }
 
 .tabs {
-  background: white;
-  padding: 10px 20px;
+  /* background: white; */
+  padding: 20px;
   border-bottom: 1px solid #ddd;
   display: flex;
   gap: 10px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .tabs button {

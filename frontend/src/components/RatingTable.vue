@@ -31,6 +31,8 @@
                 >
                   {{ forestry.name }}
                 </th>
+                <!-- Добавляем столбец для суммы по показателю -->
+                <th class="total-col">Сумма</th>
               </tr>
             </thead>
 
@@ -144,6 +146,13 @@
                       </span>
                     </div>
                   </td>
+
+                  <!-- Ячейка с суммой по показателю -->
+                  <td class="total-col-cell">
+                    <div class="total-indicator-value">
+                      {{ getIndicatorTotal(indicator.id) }}
+                    </div>
+                  </td>
                 </tr>
               </template>
             </tbody>
@@ -215,6 +224,15 @@ const manualIndicators = computed(() =>
 // Получение показателей по разделу (всех)
 const getSectionIndicators = (sectionId) => {
   return indicators.value.filter((i) => i.section_id === sectionId);
+};
+
+// Получение суммы значений по показателю для всех лесничеств
+const getIndicatorTotal = (indicatorId) => {
+  let total = 0;
+  forestries.value.forEach((forestry) => {
+    total += getValue(forestry.id, indicatorId);
+  });
+  return total.toFixed(2);
 };
 
 // Загрузка данных
@@ -511,6 +529,34 @@ th {
   font-weight: 600;
 }
 
+/* Стили для столбца суммы */
+.total-col {
+  min-width: 100px;
+  text-align: center;
+  /* background: #fff3e0; */
+  /* color: #e65100; */
+  font-weight: 600;
+}
+
+.total-col-cell {
+  padding: 10px;
+  text-align: center;
+  /* background: #fffaf0; */
+  border-left: 1px solid #ddd;
+  font-weight: 500;
+}
+
+.total-indicator-value {
+  font-size: 14px;
+  /* color: #e65100; */
+}
+
+.total-indicator-value .unit {
+  font-size: 11px;
+  color: #ff9800;
+  margin-left: 2px;
+}
+
 .indicator-row {
   border-bottom: 1px solid #eee;
 }
@@ -529,7 +575,7 @@ th {
 }
 
 .indicator-info.manual-row {
-  background: #fffaf2;
+  /* background: #fffaf2; */
 }
 
 .indicator-header {
@@ -571,7 +617,7 @@ th {
 }
 
 .manual-cell {
-  background-color: #fffaf2;
+  /* background-color: #fffaf2; */
 }
 
 .positive-value {
@@ -586,6 +632,7 @@ th {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 5px;
   min-height: 60px;
 }
@@ -689,10 +736,6 @@ th {
   text-align: right;
 }
 
-.total-cell.positive {
-  /* color: #4caf50; */
-}
-
 .total-cell.penalty {
   color: #c62828;
   background: #ffebee;
@@ -720,6 +763,10 @@ th {
 
   .value-input {
     width: 80px;
+  }
+
+  .total-col {
+    min-width: 80px;
   }
 
   .total-table {
