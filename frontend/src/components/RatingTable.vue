@@ -1,7 +1,7 @@
 <template>
   <div class="rating-table">
     <div class="table-header">
-      <!-- <h2>Данные за {{ formatPeriod(currentPeriod) }}</h2> -->
+      <h2>Выберите отчетный период:</h2>
       <div class="period-controls">
         <CustomDatePicker v-model="currentPeriod" @change="changePeriod" />
       </div>
@@ -450,6 +450,7 @@ const formatPeriod = (period) => {
   margin-bottom: 20px;
   padding-bottom: 15px;
   border-bottom: 2px solid #f0f0f0;
+  gap: 10px;
 }
 
 .table-header h2 {
