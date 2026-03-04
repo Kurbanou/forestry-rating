@@ -157,6 +157,7 @@ header h1 {
   margin: 0;
   font-size: 24px;
   font-weight: 400;
+  text-transform: uppercase;
 }
 header h1 i {
   color: #ff9800;

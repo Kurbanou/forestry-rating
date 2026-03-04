@@ -572,7 +572,7 @@ th {
 }
 
 .indicator-row:hover {
-  background-color: #f9f9f9;
+  /* background-color: #f9f9f9; */
 }
 
 .indicator-info {

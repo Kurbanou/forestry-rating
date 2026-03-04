@@ -7,13 +7,15 @@
         @click="activeTab = 'quarterly'"
         :class="{ active: activeTab === 'quarterly' }"
       >
-        📊 По кварталам
+        <i class="fa-regular fa-calendar-days"></i>
+        По кварталам
       </button>
       <button
         @click="activeTab = 'trend'"
         :class="{ active: activeTab === 'trend' }"
       >
-        📈 Динамика
+        <i class="fa-solid fa-chart-line"></i>
+        Динамика
       </button>
     </div>
 
