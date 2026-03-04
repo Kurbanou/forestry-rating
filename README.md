@@ -78,6 +78,21 @@ The project is deployed using modern cloud services:
 https://forestry-rating.vercel.app
 ```
 
+# Production Dependencies
+
+```bash
+Package	Version	Purpose
+vue	3.5.29	Core framework
+vue-router	5.0.3	Routing
+pinia	3.0.4	State management
+element-plus	2.13.3	UI components (green theme)
+@fortawesome/fontawesome-free	7.2.0	Icons
+chart.js	4.5.1	Charts
+vue-chartjs	5.3.3	Vue wrapper for charts
+@supabase/supabase-js	2.98.0	Database client
+
+```
+
 # Create backup
 
 docker exec -t forestry-db pg*dump -U admin forestry_rating > backup*$(date +%Y%m%d).sql
@@ -109,57 +124,5 @@ forestry-rating/
 🔒 Environment Variables
 Create a .env file in the frontend directory:
 ```
-
-env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-🎯 Key Implementation Features
-Real-time Updates - Instant data synchronization
-
-Role-based Access - Granular permissions system
-
-Responsive Design - Mobile-friendly interface
-
-Optimized Performance - Caching and lazy loading
-
-Comprehensive Statistics - Quarterly and trend analysis
-
-📈 Statistics Module
-Quarterly Comparison - Bar charts comparing forestries
-
-Trend Analysis - Line charts showing monthly dynamics
-
-Leaderboards - Top and bottom performers
-
-Detailed Tables - Monthly breakdown of all indicators
-
-👨‍💻 Development
-Tech Stack Details
-State Management: Pinia
-
-Styling: Scoped CSS
-
-Charts: Chart.js with vue-chartjs
-
-API Client: Supabase JavaScript client
-
-Build Tool: Vite
-
-Contributing
-Fork the repository
-
-Create your feature branch (git checkout -b feature/AmazingFeature)
-
-Commit changes (git commit -m 'Add AmazingFeature')
-
-Push to branch (git push origin feature/AmazingFeature)
-
-Open a Pull Request
-
-📝 License
-This project is created for educational purposes. Free to use and modify.
-
-🤝 Support
-For issues and questions, please open an issue on GitHub or contact the development team.
 
 Made with ❤️ for forest management 🌳
