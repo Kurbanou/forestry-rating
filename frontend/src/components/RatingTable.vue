@@ -173,7 +173,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="forestry in forestries" :key="forestry.id">
+            <tr v-for="forestry in sortedForestries" :key="forestry.id">
               <td class="forestry-name">{{ forestry.name }}</td>
               <td class="total-cell" :class="getTotalClass(forestry.id)">
                 <strong>{{ getTotalScore(forestry.id) }}</strong>
@@ -191,6 +191,15 @@ import { ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
 import { useDataStore } from "../stores/dataStore";
 import { useAuthStore } from "../stores/authStore";
 import CustomDatePicker from "./CustomDatePicker.vue";
+
+// Сортировка лесничеств по убыванию итоговых баллов
+const sortedForestries = computed(() => {
+  return [...forestries.value].sort((a, b) => {
+    const scoreA = parseFloat(getTotalScore(a.id));
+    const scoreB = parseFloat(getTotalScore(b.id));
+    return scoreB - scoreA; // по убыванию (от большего к меньшему)
+  });
+});
 
 const changePeriod = (newPeriod) => {
   console.log("Смена периода на:", newPeriod);

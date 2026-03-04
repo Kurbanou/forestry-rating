@@ -205,14 +205,18 @@ header h1 {
 }
 
 .content {
-  padding: 20px;
+  /* padding: 20px; */
   max-width: 1200px;
   margin: 0 auto;
 }
 
-@media (max-width: 420px) {
+@media (max-width: 500px) {
   header h1 {
     font-size: 1em;
+  }
+
+  .tabs {
+    padding: 10px;
   }
 }
 </style>
