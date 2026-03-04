@@ -4,7 +4,7 @@
       v-model="selectedDate"
       type="month"
       placeholder="Выберите месяц"
-      format="YYYY-MM"
+      format="YYYY MMMM"
       value-format="YYYY-MM"
       :clearable="false"
       :editable="false"
@@ -65,5 +65,10 @@ const handleDateChange = (value) => {
 .custom-date-picker :deep(.el-input__prefix i) {
   font-size: 14px;
   color: #4caf50;
+}
+
+/* 👇 ВОТ РАБОЧИЙ СТИЛЬ ДЛЯ БОЛЬШОЙ БУКВЫ */
+.custom-date-picker :deep(.el-input__inner) {
+  text-transform: capitalize !important; /* !important чтобы перебить стили библиотеки */
 }
 </style>
