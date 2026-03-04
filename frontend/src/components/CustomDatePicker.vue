@@ -5,7 +5,6 @@
       type="month"
       format="YYYY-MM"
       value-type="format"
-      :popup-style="popupStyle"
       :clearable="false"
       :editable="false"
       :lang="lang"

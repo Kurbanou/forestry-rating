@@ -78,7 +78,7 @@ const loadData = async () => {
     const respData = await api.getIndicatorResponsible(props.indicatorId);
     const engData = await api.getEngineers();
 
-    console.log("📦 Данные ответственных:", respData);
+    // console.log("📦 Данные ответственных:", respData);
     responsible.value = respData || [];
     engineers.value = engData || [];
   } catch (error) {

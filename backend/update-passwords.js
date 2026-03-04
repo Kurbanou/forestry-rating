@@ -24,10 +24,10 @@ async function updatePasswords() {
         user.id,
       ]);
 
-      console.log(`Обновлен пароль для ${user.email}`);
+      // console.log(`Обновлен пароль для ${user.email}`);
     }
 
-    console.log("Все пароли обновлены!");
+    // console.log("Все пароли обновлены!");
   } catch (error) {
     console.error("Ошибка:", error);
   } finally {

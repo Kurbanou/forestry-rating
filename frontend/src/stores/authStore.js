@@ -50,7 +50,7 @@ export const useAuthStore = defineStore("auth", () => {
       };
 
       isAuthenticated.value = true;
-      console.log("✅ Вошли, пользователь:", user.value);
+      // console.log("✅ Вошли, пользователь:", user.value);
 
       return data;
     } catch (error) {
@@ -83,7 +83,7 @@ export const useAuthStore = defineStore("auth", () => {
           role: userRole,
         };
         isAuthenticated.value = true;
-        console.log("✅ Проверка авторизации:", user.value);
+        // console.log("✅ Проверка авторизации:", user.value);
       } else {
         user.value = null;
         isAuthenticated.value = false;

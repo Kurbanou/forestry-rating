@@ -63,7 +63,7 @@
 
 <script setup>
 import { ref, reactive } from "vue";
-import { useRouter } from "vue-router";
+// import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/authStore";
 
 const props = defineProps({
@@ -72,7 +72,7 @@ const props = defineProps({
 
 const emit = defineEmits(["close", "login"]);
 
-const router = useRouter();
+// const router = useRouter();
 const authStore = useAuthStore();
 
 const isLogin = ref(true);

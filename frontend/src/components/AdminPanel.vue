@@ -160,35 +160,35 @@ const getRoleName = (role) => {
 
 // Заглушки для действий
 const editSection = (section) => {
-  console.log("Редактирование раздела:", section);
+  // console.log("Редактирование раздела:", section);
   showSectionForm.value = true;
 };
 
 const deleteSection = (id) => {
   if (confirm("Удалить раздел?")) {
-    console.log("Удаление раздела:", id);
+    // console.log("Удаление раздела:", id);
   }
 };
 
 const editIndicator = (indicator) => {
-  console.log("Редактирование показателя:", indicator);
+  // console.log("Редактирование показателя:", indicator);
   showIndicatorForm.value = true;
 };
 
 const deleteIndicator = (id) => {
   if (confirm("Удалить показатель?")) {
-    console.log("Удаление показателя:", id);
+    // console.log("Удаление показателя:", id);
   }
 };
 
 const editUser = (user) => {
-  console.log("Редактирование пользователя:", user);
+  // console.log("Редактирование пользователя:", user);
   showUserForm.value = true;
 };
 
 const deleteUser = (id) => {
   if (confirm("Удалить пользователя?")) {
-    console.log("Удаление пользователя:", id);
+    // console.log("Удаление пользователя:", id);
   }
 };
 </script>

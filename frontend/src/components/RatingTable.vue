@@ -202,7 +202,7 @@ const sortedForestries = computed(() => {
 });
 
 const changePeriod = (newPeriod) => {
-  console.log("Смена периода на:", newPeriod);
+  // console.log("Смена периода на:", newPeriod);
   dataStore.setPeriod(newPeriod);
 };
 
@@ -246,7 +246,7 @@ const getIndicatorTotal = (indicatorId) => {
 
 // Загрузка данных
 onMounted(async () => {
-  console.log("RatingTable mounted");
+  // console.log("RatingTable mounted");
   // Данные уже загружаются в App.vue, но если нужно - можно проверить
   if (!dataStore.forestries.length) {
     await dataStore.loadAllData();
@@ -262,7 +262,7 @@ onUnmounted(() => {
 watch(
   () => dataStore.rawData,
   (newData) => {
-    console.log("rawData изменился, записей:", newData.length);
+    // console.log("rawData изменился, записей:", newData.length);
   },
   { deep: true },
 );

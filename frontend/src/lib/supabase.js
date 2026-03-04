@@ -223,7 +223,7 @@ export const api = {
         throw error;
       }
 
-      console.log("✅ Загружено пользователей:", data?.length);
+      // console.log("✅ Загружено пользователей:", data?.length);
       return data || [];
     } catch (error) {
       console.error("❌ Ошибка получения пользователей:", error);
@@ -339,7 +339,7 @@ export const api = {
   // Метод для получения всех ответственных
   getAllResponsible: async () => {
     try {
-      console.log("📥 Загружаем всех ответственных...");
+      // console.log("📥 Загружаем всех ответственных...");
 
       // Сначала получаем все назначения
       const { data: irData, error: irError } = await supabase
@@ -348,7 +348,7 @@ export const api = {
 
       if (irError) throw irError;
 
-      console.log("✅ Назначения загружены:", irData?.length);
+      // console.log("✅ Назначения загружены:", irData?.length);
 
       if (!irData || irData.length === 0) {
         return [];
@@ -392,12 +392,12 @@ export const api = {
         };
       });
 
-      console.log("📦 Итоговые данные:", result);
+      // console.log("📦 Итоговые данные:", result);
 
       // Проверяем для nach
       const nachId = "6d5025d2-9036-4c42-affe-08fe144b0147";
       const nachData = result.filter((r) => r.user_id === nachId);
-      console.log("👤 Назначения для nach:", nachData);
+      // console.log("👤 Назначения для nach:", nachData);
 
       return result;
     } catch (error) {

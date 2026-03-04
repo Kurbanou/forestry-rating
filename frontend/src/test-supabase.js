@@ -1,8 +1,8 @@
 import { supabase } from "./lib/supabase.js";
 
 async function testConnection() {
-  console.log("🔍 Тестируем подключение к Supabase...");
-  console.log("URL:", import.meta.env.VITE_SUPABASE_URL);
+  // console.log("🔍 Тестируем подключение к Supabase...");
+  // console.log("URL:", import.meta.env.VITE_SUPABASE_URL);
 
   try {
     // Проверяем лесничества
@@ -13,8 +13,8 @@ async function testConnection() {
     if (err1) {
       console.error("❌ Ошибка при получении лесничеств:", err1.message);
     } else {
-      console.log("✅ Лесничества загружены:", forestries.length);
-      console.log("   Первое лесничество:", forestries[0]);
+      // console.log("✅ Лесничества загружены:", forestries.length);
+      // console.log("   Первое лесничество:", forestries[0]);
     }
 
     // Проверяем показатели
@@ -26,7 +26,7 @@ async function testConnection() {
     if (err2) {
       console.error("❌ Ошибка при получении показателей:", err2.message);
     } else {
-      console.log("✅ Показатели загружены:", indicators.length);
+      // console.log("✅ Показатели загружены:", indicators.length);
     }
 
     // Проверяем данные

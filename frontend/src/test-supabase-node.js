@@ -7,8 +7,8 @@ import { createClient } from "@supabase/supabase-js";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 async function testConnection() {
-  console.log("🔍 Тестируем подключение к Supabase...");
-  console.log("URL:", SUPABASE_URL);
+  // console.log("🔍 Тестируем подключение к Supabase...");
+  // console.log("URL:", SUPABASE_URL);
 
   try {
     // Проверяем лесничества
@@ -19,8 +19,8 @@ async function testConnection() {
     if (err1) {
       console.error("❌ Ошибка при получении лесничеств:", err1.message);
     } else {
-      console.log("✅ Лесничества загружены:", forestries.length);
-      console.log("   Первое лесничество:", forestries[0]);
+      // console.log("✅ Лесничества загружены:", forestries.length);
+      // console.log("   Первое лесничество:", forestries[0]);
     }
 
     // Проверяем показатели
@@ -32,7 +32,7 @@ async function testConnection() {
     if (err2) {
       console.error("❌ Ошибка при получении показателей:", err2.message);
     } else {
-      console.log("✅ Показатели загружены:", indicators.length);
+      // console.log("✅ Показатели загружены:", indicators.length);
     }
 
     // Проверяем данные
@@ -44,7 +44,7 @@ async function testConnection() {
     if (err3) {
       console.error("❌ Ошибка при получении данных:", err3.message);
     } else {
-      console.log("✅ Данные загружены:", rawData.length);
+      // console.log("✅ Данные загружены:", rawData.length);
     }
   } catch (error) {
     console.error("❌ Непредвиденная ошибка:", error);
