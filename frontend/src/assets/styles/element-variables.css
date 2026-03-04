@@ -1,0 +1,16 @@
+:root {
+  /* Основной цвет (primary) - меняем с синего на зеленый */
+  --el-color-primary: #4caf50;
+  --el-color-primary-light-3: #6ec071;
+  --el-color-primary-light-5: #97d49a;
+  --el-color-primary-light-7: #c0e8c2;
+  --el-color-primary-light-8: #d4f0d6;
+  --el-color-primary-light-9: #e9f7ea;
+  --el-color-primary-dark-2: #3d8c40;
+
+  /* Дополнительные цвета (опционально) */
+  --el-color-success: #67c23a;
+  --el-color-warning: #e6a23c;
+  --el-color-danger: #f56c6c;
+  --el-color-info: #909399;
+}
