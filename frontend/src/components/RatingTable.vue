@@ -445,7 +445,7 @@ const formatPeriod = (period) => {
 
 .table-header {
   display: flex;
-  /* justify-content: space-between; */
+  justify-content: center;
   align-items: center;
   margin-bottom: 20px;
   padding-bottom: 15px;
@@ -454,10 +454,11 @@ const formatPeriod = (period) => {
 
 .table-header h2 {
   margin: 0;
-  color: #333;
-  font-size: 0.91rem;
-  text-transform: lowercase;
-  font-weight: 400;
+  color: #73879c;
+  font-size: 1rem;
+  text-transform: uppercase;
+  font-weight: bold;
+  text-align: center;
 }
 
 .period-input {
