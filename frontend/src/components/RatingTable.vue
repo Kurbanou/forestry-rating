@@ -163,7 +163,7 @@
 
     <!-- Итоговая таблица (только итого) -->
     <div class="total-section">
-      <h3>📊 Итоговые баллы</h3>
+      <h3><i class="fa-solid fa-crown"></i> Итоговые баллы</h3>
       <div class="table-container">
         <table class="total-table">
           <thead>
@@ -454,10 +454,10 @@ const formatPeriod = (period) => {
 
 .table-header h2 {
   margin: 0;
-  color: #73879c;
+  /* color: #73879c; */
   font-size: 1rem;
   text-transform: uppercase;
-  font-weight: bold;
+  font-weight: 500;
   text-align: center;
 }
 

@@ -46,25 +46,27 @@ const activeTab = ref("quarterly");
 
 .stats-tabs {
   display: flex;
-  gap: 10px;
+  gap: 0px;
   margin-bottom: 20px;
   border-bottom: 1px solid #ddd;
   padding-bottom: 10px;
+  width: fit-content;
 }
 
 .stats-tabs button {
   padding: 10px 20px;
-  border: none;
+  border: 3px solid transparent;
   background: none;
   cursor: pointer;
   font-size: 16px;
   color: #666;
-  border-radius: 4px;
+  /* border-radius: 4px; */
   transition: all 0.2s;
+  user-select: none;
 }
 
 .stats-tabs button:hover {
-  background: #f5f5f5;
+  border-bottom: 3px solid #4caf50;
 }
 
 .stats-tabs button.active {
