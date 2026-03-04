@@ -32,7 +32,7 @@
                   {{ forestry.name }}
                 </th>
                 <!-- Добавляем столбец для суммы по показателю -->
-                <th class="total-col">Сумма</th>
+                <th class="total-col">Итого</th>
               </tr>
             </thead>
 

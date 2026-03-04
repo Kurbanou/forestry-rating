@@ -1,7 +1,9 @@
 <template>
   <div class="app">
     <header>
-      <h1>🌲 Система рейтинга лесничеств</h1>
+      <h1>
+        <i class="fa-solid fa-ranking-star"></i> Система рейтинга лесничеств
+      </h1>
       <div class="user-info">
         <span v-if="authStore.user">
           {{ authStore.user.email }}
@@ -28,13 +30,15 @@
           @click="currentTab = 'table'"
           :class="{ active: currentTab === 'table' }"
         >
-          📊 Таблица данных
+          <i class="fa-solid fa-file-excel"></i>
+          Таблица данных
         </button>
         <button
           @click="currentTab = 'stats'"
           :class="{ active: currentTab === 'stats' }"
         >
-          📈 Статистика
+          <i class="fa-solid fa-chart-column"></i>
+          Статистика
         </button>
         <button
           v-if="authStore.user?.role === 'admin'"
@@ -53,6 +57,27 @@
         <AdminPanel v-if="currentTab === 'admin'" />
       </div>
     </main>
+    <!-- Блок об авторе -->
+    <footer class="app-footer">
+      <div class="footer-content">
+        <div class="footer-info">
+          <i class="fa-solid fa-ranking-star"></i>
+          <span>Система рейтинга лесничеств</span>
+        </div>
+
+        <div class="developer-info">
+          <i class="fas fa-code"></i>
+          <span>Разработчик: <strong>Kurbanou Farid</strong></span>
+        </div>
+
+        <div class="footer-links">
+          <a href="https://github.com/Kurbanou" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+          <span class="version">v1.0.0</span>
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -133,6 +158,9 @@ header h1 {
   font-size: 24px;
   font-weight: 400;
 }
+header h1 i {
+  color: #ff9800;
+}
 
 .user-info {
   display: flex;
@@ -178,23 +206,53 @@ header h1 {
 }
 
 .tabs button {
-  padding: 10px 20px;
+  padding: 10px;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   border: none;
   background: none;
   cursor: pointer;
   font-size: 16px;
-  color: #666;
-  border-bottom: 2px solid transparent;
+  color: #667;
+  /* border-bottom: 2px solid transparent; */
+  transition: all 0.5s;
+  user-select: none;
+  border-radius: 3px;
+  position: relative;
+}
+
+.tabs button::after {
+  content: "";
+  position: absolute;
+  height: 2px;
+  width: 0;
+  background-color: #ff9800;
+  left: 0;
+  bottom: 0;
   transition: all 0.3s;
 }
 
+.tabs button:hover::after,
+.tabs button.active::after {
+  width: 100%;
+  background-color: #ff9800;
+}
+
+.tabs button.active::after {
+  width: 100%;
+  background-color: #45a049;
+}
+
 .tabs button:hover {
-  color: #333;
+  color: #ff9800;
 }
 
 .tabs button.active {
-  color: #4caf50;
-  border-bottom-color: #4caf50;
+  /* background-color: #45a049; */
+  color: #45a049;
 }
 
 .loading {
@@ -208,6 +266,84 @@ header h1 {
   /* padding: 20px; */
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.app-footer {
+  margin-top: 40px;
+  padding: 20px;
+  background: #2c3e50;
+  color: #ecf0f1;
+  border-top: 3px solid #4caf50;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.footer-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-info i {
+  color: #4caf50;
+  font-size: 18px;
+}
+
+.developer-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 30px;
+}
+
+.developer-info i {
+  color: #ff9800;
+}
+
+.developer-info strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.footer-links a {
+  color: #ecf0f1;
+  font-size: 20px;
+  transition: color 0.3s;
+}
+
+.footer-links a:hover {
+  color: #4caf50;
+}
+
+.version {
+  font-size: 12px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  margin-left: 5px;
+}
+
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+  }
 }
 
 @media (max-width: 500px) {
