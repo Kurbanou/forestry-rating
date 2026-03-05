@@ -5,23 +5,6 @@
       <button @click="openForm()" class="btn-add">+ Новый пользователь</button>
     </div>
 
-    <!-- Фильтры -->
-    <div class="filters">
-      <select v-model="filterRole" class="filter-select">
-        <option value="all">Все роли</option>
-        <option value="admin">👑 Администраторы</option>
-        <option value="engineer">👷 Инженеры</option>
-        <option value="viewer">👀 Наблюдатели</option>
-      </select>
-
-      <input
-        v-model="searchQuery"
-        type="text"
-        placeholder="🔍 Поиск по email..."
-        class="search-input"
-      />
-    </div>
-
     <!-- Список пользователей -->
     <div class="users-list">
       <div v-for="user in filteredUsers" :key="user.id" class="user-card">

@@ -7,23 +7,19 @@
 
     <!-- Фильтры -->
     <div class="filters">
-      <select v-model="filterSection" class="filter-select">
-        <option value="all">Все разделы</option>
-        <option
+      <el-select
+        v-model="filterSection"
+        class="filter-select"
+        style="width: 375px"
+      >
+        <el-option value="all" label="Все разделы" />
+        <el-option
           v-for="section in sections"
           :key="section.id"
           :value="section.id"
-        >
-          {{ section.name }}
-        </option>
-      </select>
-
-      <select v-model="filterType" class="filter-select">
-        <option value="all">Все типы</option>
-        <option value="positive">📊 Обычные</option>
-        <option value="penalty">⚠️ Штрафные</option>
-        <option value="bonus">🎁 Бонусные</option>
-      </select>
+          :label="section.name"
+        />
+      </el-select>
     </div>
 
     <!-- Список показателей -->
@@ -238,14 +234,6 @@ const formatDate = (date) => {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
-}
-
-.filter-select {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 14px;
-  min-width: 200px;
 }
 
 .indicators-list {
