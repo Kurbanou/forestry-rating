@@ -45,7 +45,8 @@
           @click="currentTab = 'admin'"
           :class="{ active: currentTab === 'admin' }"
         >
-          ⚙️ Управление
+          <i class="fa-solid fa-gear"></i>
+          Управление
         </button>
       </div>
 

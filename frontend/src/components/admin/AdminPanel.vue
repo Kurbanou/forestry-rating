@@ -7,25 +7,29 @@
           @click="currentTab = 'sections'"
           :class="{ active: currentTab === 'sections' }"
         >
-          📁 Разделы
+          <i class="fa-solid fa-folder-tree"></i>
+          Разделы
         </button>
         <button
           @click="currentTab = 'indicators'"
           :class="{ active: currentTab === 'indicators' }"
         >
-          📊 Показатели
+          <i class="fa-solid fa-bars-progress"></i>
+          Показатели
         </button>
         <button
           @click="currentTab = 'forestries'"
           :class="{ active: currentTab === 'forestries' }"
         >
-          🌳 Лесничества
+          <i class="fa-solid fa-sitemap"></i>
+          Лесничества
         </button>
         <button
           @click="currentTab = 'users'"
           :class="{ active: currentTab === 'users' }"
         >
-          👥 Пользователи
+          <i class="fa-solid fa-users"></i>
+          Пользователи
         </button>
       </div>
     </div>

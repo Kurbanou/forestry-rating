@@ -38,14 +38,14 @@
             class="btn-edit"
             title="Редактировать"
           >
-            ✏️
+            <i class="fa-solid fa-pencil"></i>
           </button>
           <button
             @click="deleteForestry(forestry.id)"
             class="btn-delete"
             title="Удалить"
           >
-            🗑️
+            <i class="fa-solid fa-trash-can"></i>
           </button>
         </div>
       </div>

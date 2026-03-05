@@ -61,7 +61,7 @@
             class="btn-edit"
             title="Редактировать"
           >
-            ✏️
+            <i class="fa-solid fa-pencil"></i>
           </button>
           <button
             @click="deleteUser(user.id)"
@@ -69,7 +69,7 @@
             title="Удалить"
             :disabled="user.email === 'admin@les.ru'"
           >
-            🗑️
+            <i class="fa-solid fa-trash-can"></i>
           </button>
         </div>
       </div>
