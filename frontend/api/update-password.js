@@ -19,12 +19,21 @@ export default async function handler(req, res) {
       .json({ error: "Пароль должен быть не менее 6 символов" });
   }
 
+  // Проверяем наличие переменных окружения
+  const supabaseUrl = process.env.VITE_SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    console.error("Missing env vars:", {
+      hasUrl: !!supabaseUrl,
+      hasKey: !!supabaseServiceKey,
+    });
+    return res.status(500).json({ error: "Ошибка конфигурации сервера" });
+  }
+
   try {
-    // Создаем админского клиента Supabase (только на сервере!)
-    const supabaseAdmin = createClient(
-      process.env.VITE_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY,
-    );
+    // Создаем админского клиента Supabase
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
     const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
       password: newPassword,
