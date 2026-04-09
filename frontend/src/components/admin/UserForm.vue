@@ -166,7 +166,6 @@ const handleSubmit = async () => {
     submitData.password = form.password;
   }
 
-  // Логируем для отладки
   console.log("Отправляемые данные:", {
     isEditing: !!props.user,
     submitData,
@@ -188,8 +187,8 @@ const handleSubmit = async () => {
         role: submitData.role,
       });
 
-      emit("save");
-      closeForm();
+      // Закрываем форму через emit
+      emit("cancel");
     } catch (error) {
       console.error("Ошибка:", error);
       alert(error.message);
@@ -202,8 +201,7 @@ const handleSubmit = async () => {
     }
     try {
       await api.createUser(submitData);
-      emit("save");
-      closeForm();
+      emit("cancel");
     } catch (error) {
       console.error("Ошибка:", error);
       alert(error.message);
