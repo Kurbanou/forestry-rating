@@ -29,15 +29,15 @@ export const api = {
       console.warn("⚠️ Не удалось получить профиль:", profileError);
     }
 
-    // Используем роль из профиля, если есть, иначе из метаданных
-    // const role = profile?.role || data.user.user_metadata?.role || "viewer";
+    // 👇 ОПРЕДЕЛЯЕМ ПЕРЕМЕННУЮ role
+    const role = profile?.role || "viewer";
 
     return {
       token: data.session.access_token,
       user: {
         id: data.user.id,
         email: data.user.email,
-        role: role, // ← теперь берем из user_profiles
+        role: role, // ← теперь role определена
       },
     };
   },
