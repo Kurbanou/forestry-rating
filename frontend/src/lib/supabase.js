@@ -270,6 +270,13 @@ export const api = {
 
   updateUser: async (id, userData) => {
     try {
+      // Проверяем, что userData существует
+      if (!userData) {
+        throw new Error("Нет данных для обновления");
+      }
+
+      console.log("Обновление пользователя:", { id, userData }); // Для отладки
+
       // Обновляем профиль
       const { data, error } = await supabase
         .from("user_profiles")

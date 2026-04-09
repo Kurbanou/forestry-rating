@@ -149,29 +149,52 @@ watch(
 );
 
 const handleSubmit = async () => {
-  const submitData = { ...form };
-
-  if (props.user) {
-    // Если введен новый пароль — меняем через серверную функцию
-    if (submitData.password) {
-      try {
-        await api.updateUserPassword(props.user.id, submitData.password);
-        delete submitData.password;
-      } catch (error) {
-        console.error("Ошибка смены пароля:", error);
-        alert(error.message);
-        return;
-      }
-    }
-
-    // Обновляем остальные данные
-    await api.updateUser(props.user.id, submitData);
-  } else {
-    // Создание нового пользователя
-    await api.createUser(submitData);
+  // Проверяем обязательные поля
+  if (!form.email) {
+    alert("Email обязателен");
+    return;
   }
 
-  emit("save");
+  const submitData = {
+    email: form.email,
+    role: form.role,
+  };
+
+  // Добавляем пароль только если он введен
+  if (form.password && form.password.trim() !== "") {
+    submitData.password = form.password;
+  }
+
+  if (props.user) {
+    // Редактирование пользователя
+    try {
+      // Если есть пароль — сначала меняем его
+      if (submitData.password) {
+        await api.updateUserPassword(props.user.id, submitData.password);
+        delete submitData.password;
+      }
+
+      // Обновляем остальные данные
+      await api.updateUser(props.user.id, submitData);
+      emit("save");
+    } catch (error) {
+      console.error("Ошибка:", error);
+      alert(error.message);
+    }
+  } else {
+    // Создание нового пользователя
+    if (!submitData.password) {
+      alert("Пароль обязателен при создании пользователя");
+      return;
+    }
+    try {
+      await api.createUser(submitData);
+      emit("save");
+    } catch (error) {
+      console.error("Ошибка:", error);
+      alert(error.message);
+    }
+  }
 };
 </script>
 <style scoped>
