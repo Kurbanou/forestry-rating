@@ -155,27 +155,35 @@ const handleSubmit = async () => {
     return;
   }
 
-  const submitData = {
-    email: form.email,
-    role: form.role,
-  };
+  // Собираем данные для отправки
+  const submitData = {};
 
-  // Добавляем пароль только если он введен
-  if (form.password && form.password.trim() !== "") {
+  // Добавляем только те поля, которые есть
+  if (form.email) submitData.email = form.email;
+  if (form.role) submitData.role = form.role;
+  if (form.password && form.password.trim()) {
     submitData.password = form.password;
   }
 
+  // Убеждаемся, что есть хоть какие-то данные
+  if (Object.keys(submitData).length === 0) {
+    alert("Нет данных для сохранения");
+    return;
+  }
+
   if (props.user) {
-    // Редактирование пользователя
     try {
-      // Если есть пароль — сначала меняем его
+      // Сначала меняем пароль, если он есть
       if (submitData.password) {
         await api.updateUserPassword(props.user.id, submitData.password);
         delete submitData.password;
       }
 
-      // Обновляем остальные данные
-      await api.updateUser(props.user.id, submitData);
+      // Обновляем остальные данные (если есть)
+      if (Object.keys(submitData).length > 0) {
+        await api.updateUser(props.user.id, submitData);
+      }
+
       emit("save");
     } catch (error) {
       console.error("Ошибка:", error);
@@ -183,8 +191,8 @@ const handleSubmit = async () => {
     }
   } else {
     // Создание нового пользователя
-    if (!submitData.password) {
-      alert("Пароль обязателен при создании пользователя");
+    if (!submitData.email || !submitData.password) {
+      alert("Email и пароль обязательны");
       return;
     }
     try {
