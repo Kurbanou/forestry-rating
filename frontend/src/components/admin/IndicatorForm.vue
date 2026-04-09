@@ -48,7 +48,7 @@
         <div class="form-group">
           <label>Тип показателя *</label>
           <select v-model="form.type" required @change="handleTypeChange">
-            <option value="regular">📊 Обычный (расчет по формуле)</option>
+            <option value="positive">📊 Обычный (расчет по формуле)</option>
             <option value="manual">
               ➕➖ Бонус/Штраф (ручной ввод баллов)
             </option>
@@ -151,7 +151,7 @@ const indicatorId = computed(() => {
 const form = reactive({
   section_id: "",
   name: "",
-  type: "regular",
+  type: "positive",
   max_weight: 50,
   unit: "",
   description: "",
@@ -164,14 +164,14 @@ watch(
     if (newVal) {
       form.section_id = newVal.section_id || "";
       form.name = newVal.name || "";
-      form.type = newVal.type || "regular";
+      form.type = newVal.type || "positive";
       form.max_weight = newVal.max_weight || 50;
       form.unit = newVal.unit || "";
       form.description = newVal.description || "";
     } else {
       form.section_id = "";
       form.name = "";
-      form.type = "regular";
+      form.type = "positive";
       form.max_weight = 50;
       form.unit = "";
       form.description = "";
