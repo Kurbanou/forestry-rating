@@ -270,20 +270,27 @@ export const api = {
 
   updateUser: async (id, userData) => {
     try {
-      // Проверяем, что userData существует
+      // Проверяем, что userData существует и не пустой
       if (!userData) {
         throw new Error("Нет данных для обновления");
       }
 
-      console.log("Обновление пользователя:", { id, userData }); // Для отладки
+      // Проверяем, что есть хотя бы одно поле для обновления
+      if (!userData.email && !userData.role) {
+        console.warn("Нет полей для обновления:", userData);
+        return { id, ...userData }; // Возвращаем без изменений
+      }
+
+      console.log("Обновление пользователя:", { id, userData });
 
       // Обновляем профиль
+      const updateFields = {};
+      if (userData.email) updateFields.email = userData.email;
+      if (userData.role) updateFields.role = userData.role;
+
       const { data, error } = await supabase
         .from("user_profiles")
-        .update({
-          email: userData.email,
-          role: userData.role,
-        })
+        .update(updateFields)
         .eq("id", id)
         .select();
 

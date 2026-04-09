@@ -155,49 +155,55 @@ const handleSubmit = async () => {
     return;
   }
 
-  // Собираем данные для отправки
-  const submitData = {};
+  // Создаем объект с данными, которые нужно обновить
+  const submitData = {
+    email: form.email,
+    role: form.role,
+  };
 
-  // Добавляем только те поля, которые есть
-  if (form.email) submitData.email = form.email;
-  if (form.role) submitData.role = form.role;
-  if (form.password && form.password.trim()) {
+  // Добавляем пароль только если он введен
+  if (form.password && form.password.trim() !== "") {
     submitData.password = form.password;
   }
 
-  // Убеждаемся, что есть хоть какие-то данные
-  if (Object.keys(submitData).length === 0) {
-    alert("Нет данных для сохранения");
-    return;
-  }
+  // Логируем для отладки
+  console.log("Отправляемые данные:", {
+    isEditing: !!props.user,
+    submitData,
+    userId: props.user?.id,
+  });
 
   if (props.user) {
+    // Редактирование пользователя
     try {
-      // Сначала меняем пароль, если он есть
+      // Если есть пароль — меняем его через отдельный API
       if (submitData.password) {
         await api.updateUserPassword(props.user.id, submitData.password);
         delete submitData.password;
       }
 
-      // Обновляем остальные данные (если есть)
-      if (Object.keys(submitData).length > 0) {
-        await api.updateUser(props.user.id, submitData);
-      }
+      // Обновляем остальные данные (email, role) — они всегда есть
+      await api.updateUser(props.user.id, {
+        email: submitData.email,
+        role: submitData.role,
+      });
 
       emit("save");
+      closeForm();
     } catch (error) {
       console.error("Ошибка:", error);
       alert(error.message);
     }
   } else {
     // Создание нового пользователя
-    if (!submitData.email || !submitData.password) {
-      alert("Email и пароль обязательны");
+    if (!submitData.password) {
+      alert("Пароль обязателен при создании пользователя");
       return;
     }
     try {
       await api.createUser(submitData);
       emit("save");
+      closeForm();
     } catch (error) {
       console.error("Ошибка:", error);
       alert(error.message);
