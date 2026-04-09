@@ -148,16 +148,30 @@ watch(
   { immediate: true },
 );
 
-const handleSubmit = () => {
-  // Если это редактирование и пароль пустой - удаляем его из данных
+const handleSubmit = async () => {
   const submitData = { ...form };
 
-  // 👇 Для редактирования: если пароль пустой - не отправляем его
-  if (props.user && !submitData.password) {
-    delete submitData.password;
+  if (props.user) {
+    // Если введен новый пароль — меняем через серверную функцию
+    if (submitData.password) {
+      try {
+        await api.updateUserPassword(props.user.id, submitData.password);
+        delete submitData.password;
+      } catch (error) {
+        console.error("Ошибка смены пароля:", error);
+        alert(error.message);
+        return;
+      }
+    }
+
+    // Обновляем остальные данные
+    await api.updateUser(props.user.id, submitData);
+  } else {
+    // Создание нового пользователя
+    await api.createUser(submitData);
   }
 
-  emit("save", submitData);
+  emit("save");
 };
 </script>
 <style scoped>
